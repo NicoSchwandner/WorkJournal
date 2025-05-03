@@ -1,0 +1,22 @@
+---
+description: Versioning, changelogs and docs style
+globs:
+  - '.changeset/*'
+  - 'docs/**'
+alwaysApply: false
+---
+
+### Versioning
+* Use **Changesets** fixed-version mode; every package shares the repo version tag.:contentReference[oaicite:9]{index=9}  
+* Release workflow = “Create release PR or publish to npm” GitHub Action.
+
+### Changelogs
+* Generated automatically by `changeset publish`.  
+* Manual edits allowed but keep breaking-change notes under `### 💥 Breaking`.
+
+### Documentation
+* README first, then full guides in `/docs/`.  
+* Prefer fenced code blocks with language hints (`ts`, `bash`, `mdc`).  
+* Any CLI flag added **must** be documented within 24 h of merge.
+
+@00-project-overview.mdc

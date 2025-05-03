@@ -1,0 +1,23 @@
+---
+description: High-level tech stack & principles for Work-Journal
+alwaysApply: true
+---
+
+### Tech stack
+* **Runtime** – Node >= 18 LTS (works on 20, avoids legacy APIs):contentReference[oaicite:1]{index=1}  
+* **Language** – TypeScript strict mode  
+* **Package manager** – pnpm workspaces:contentReference[oaicite:2]{index=2}  
+* **Bundler** – tsup (ESM + CJS):contentReference[oaicite:3]{index=3}  
+* **CLI helpers** – yargs for argument parsing:contentReference[oaicite:4]{index=4}  
+* **Date utilities** – date-fns v4+ (getISOWeek, endOfQuarter, etc.):contentReference[oaicite:5]{index=5}  
+* **Tests** – Vitest + ts-node ESM preset:contentReference[oaicite:6]{index=6}  
+* **Monorepo release** – Changesets (fixed version strategy):contentReference[oaicite:7]{index=7}  
+
+### Global guidelines
+1. Prefer **pure-JS dependencies only**; no native addons (keeps `pkg`-built binaries portable).  
+2. All new code must compile with `pnpm -r run build` and pass `pnpm test`.  
+3. Keep CLI start-to-finish latency < 150 ms on Node 18.  
+4. Use the placeholders syntax **`$placeholder`** in Markdown templates for simple string substitution – avoid handlebars.  
+5. Put generated journals under `/Journal/` (ignored in `.gitignore`).
+
+@/templates

@@ -1,0 +1,32 @@
+---
+description: How to extend or refactor the CLI in packages/cli
+globs:
+  - 'packages/cli/**'
+alwaysApply: false
+---
+
+### Command registration  
+```ts
+yargs.command(
+  '<name>',
+  '<description>',
+  builder => { /* options */ },
+  handler => { /* impl */ }
+)
+```
+
+* Put each sub-command in `src/commands/<name>.ts`.
+* Export a pure function; no side effects at import time (improves unit-testability).
+* For new flags, update auto-generated help via `yargs.showHelp()`.
+
+### Date logic
+
+Use helpers from `src/lib/dateLogic.ts`.
+Do **not** call `date-fns` directly inside commands; keep calculations centralised for easier testing.
+
+### Editor launch
+
+`--open` flag resolves `$EDITOR` → falls back to `code`.
+Never assume VS Code is installed globally; catch spawn errors and log a path hint instead.
+
+@00-project-overview.mdc

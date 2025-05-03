@@ -1,0 +1,30 @@
+---
+description: Testing strategy & coverage expectations
+globs:
+  - 'packages/**/*.test.ts'
+  - 'packages/cli/src/lib/**'
+alwaysApply: false
+---
+
+### Framework
+* **Vitest** with ESM preset, coverage via `vitest run --coverage`.:contentReference[oaicite:8]{index=8}  
+
+### Coverage baseline
+* Functions in `dateLogic.ts`, `templateLoader.ts`, and `placeholder.ts` require ≥ 90 % branch coverage.  
+* Integration tests for `work-journal new` must simulate:  
+  * First run (creates file)  
+  * Second run (appends weekly)  
+  * `--offset` past quarter end  
+  * Windows path (`C:\\tmp`) via Vitest’s `vi.mock('path')`.
+
+### Test data
+* Use `mock-fs` to isolate the filesystem.  
+* Snapshot rendered Markdown with `expect(rendered).toMatchSnapshot()`.
+
+### CI matrix
+Test against:  
+* OS – ubuntu-latest, windows-latest, macos-latest  
+* Node – 18 & 20  
+(see `.github/workflows/ci.yml`)
+
+@00-project-overview.mdc

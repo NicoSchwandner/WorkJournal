@@ -1,0 +1,21 @@
+---
+description: TypeScript, naming and file-layout conventions
+globs:
+  - 'packages/**'
+  - '!packages/**/__tests__/**'
+alwaysApply: false
+---
+
+### TypeScript compiler  
+* `tsconfig.json` must enable: `"strict": true`, `"moduleResolution": "node16"`, `"target": "es2022"`.  
+* Do **not** use the `any` type except in third-party shims.
+
+### File naming  
+* Source: `*.ts / *.tsx`; tests: `*.test.ts`.  
+* Use `camelCase` for variables/functions, `PascalCase` for types and React components.
+
+### Imports  
+* Prefer **ES imports**; CommonJS only in `dist/` output.  
+* Absolute imports use the `@/` alias that maps to repo root.
+
+@00-project-overview.mdc

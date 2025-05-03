@@ -1,0 +1,20 @@
+---
+description: Rules for Markdown journal template handling
+globs:
+  - 'templates/**'
+  - 'packages/cli/src/lib/template*'
+alwaysApply: false
+---
+
+1. Place all ship-ready templates in `/templates/` with the suffix `_template.md`.  
+2. Each template **must** contain at least one of `$date`, `$week`, `$monthName`, `$quarter`, `$year`. A Vitest snapshot checks this.  
+3. Rendering rule:
+
+```ts
+const rendered = render(template, { date: '2025-05-02', week: 18 })
+if (containsUnreplaced(rendered)) warnUser()
+```
+
+4. `work-journal init` **never** overwrites existing templates unless `--force` is supplied.
+
+@00-project-overview.mdc
