@@ -126,8 +126,3 @@ GitHub Actions runs the same tests on Ubuntu, macOS, and Windows with Node 18 & 
 ## Licence
 
 [Apache 2.0](LICENSE)
-
----
-
-> **This README is living documentation.**
-> New commands, flags, or placeholders **must** be reflected here within the same PR that introduces them.
