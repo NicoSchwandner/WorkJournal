@@ -1,0 +1,34 @@
+---
+description: README must be updated whenever user-facing behaviour changes
+globs:
+  # Any CLI command, flag or help text
+  - 'packages/cli/src/commands/**/*.ts'
+  # Any new or modified template that may add placeholders
+  - 'templates/**/*_template.md'
+  # The README itself
+  - 'README.md'
+alwaysApply: false        # Applies only when the matching files are in the diff
+---
+
+### Rule
+
+When you **add, rename, or change** any of the following, you _must_ also update `README.md` in the same change set:
+
+1. **CLI sub-commands** (files in `packages/cli/src/commands/`)
+2. **CLI flags / options** declared via `yargs.options()`
+3. **Template placeholders** (e.g. `$sprint`, `$goal`) or the placeholder list itself
+4. **Folder conventions or file paths** a user has to know (`Journal/yyyy/MM/...`, etc.)
+5. **Installation / build instructions** (Node version bump, new env var, etc.)
+
+#### README update checklist
+
+- **Quick-Start examples** still run without errors (`npx work-journal new` etc.).
+- **Placeholder reference table** contains the new placeholder with an example.
+- **Feature table** in the README’s “Features” section reflects the new capability
+  (use ☑️ for delivered features, 🏗 for in progress).
+- If a change is a **breaking behavioural change**, mention it under a
+  `### 💥 Breaking` heading (the release workflow will propagate it to the changelog).
+
+> Skip README edits **only** if the code change is strictly internal and has **zero** impact on any user-visible behaviour.
+
+@90-release-and-docs.mdc
