@@ -42,6 +42,47 @@ When working on a task that has an existing GitHub issue:
 
 3. Always include "Closes #ISSUE_NR" in the PR description so GitHub will automatically close the issue when the PR is merged.
 
+## Merging Pull Requests
+
+**When a PR is reviewed and ready to be merged:**
+
+1. Merge a PR using the GitHub CLI with one of these merge strategies:
+   
+   ```bash
+   # Create a merge commit (preserves all commits in the branch)
+   gh pr merge PR_NUMBER --merge
+
+   # Squash all commits into one (cleaner history, preferred)
+   gh pr merge PR_NUMBER --squash
+
+   # Rebase the branch commits onto the base branch
+   gh pr merge PR_NUMBER --rebase
+   ```
+
+2. To automatically delete the branch after merging (preferred):
+   
+   ```bash
+   gh pr merge PR_NUMBER --merge --delete-branch
+   ```
+
+   or 
+   
+   ```bash
+   gh pr merge PR_NUMBER --squash --delete-branch
+   ```
+
+3. To add a custom commit message:
+   
+   ```bash
+   gh pr merge PR_NUMBER --merge --subject "Custom merge message title" --body "Extended description of the merge"
+   ```
+
+4. To check the merge status of a PR:
+   
+   ```bash
+   gh pr view PR_NUMBER --json mergeStateStatus
+   ```
+
 ## Commands
 
 - Check existing issues: `gh issue list`
@@ -51,6 +92,7 @@ When working on a task that has an existing GitHub issue:
 - Create PR: `gh pr create --title "Title" --body "Description closes #ISSUE_NR"`
 - View PR status: `gh pr status`
 - Check PR: `gh pr checkout PR_NUMBER`
+- Merge PR: `gh pr merge PR_NUMBER --squash --delete-branch`
 
 ## Using GitHub CLI in Cursor
 
@@ -97,6 +139,9 @@ GH_PAGER=cat GH_PROMPT_DISABLED=1 gh issue develop -c ISSUE_NR
 
 # For creating a PR
 GH_PAGER=cat GH_PROMPT_DISABLED=1 gh pr create --title "Title" --body "Closes #ISSUE_NR"
+
+# For merging a PR (without interactive prompts)
+GH_PAGER=cat GH_PROMPT_DISABLED=1 gh pr merge PR_NUMBER --squash --delete-branch
 ```
 
 ## Commit Message Format
