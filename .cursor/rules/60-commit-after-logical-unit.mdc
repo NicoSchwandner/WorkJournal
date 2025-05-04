@@ -1,0 +1,50 @@
+---
+description: USE WHEN a discrete logical unit of work is finished **and** its functionality has been verified (build, tests pass).
+globs:
+alwaysApply: false
+---
+
+## Commit Workflow
+
+1. **Verify the changes**
+   ```bash
+   # For CLI package changes
+   pnpm --filter=cli build && pnpm test
+   
+   # For monorepo-wide changes
+   pnpm test
+   ```
+   Abort if anything fails.
+
+2. **Stage relevant files**
+   ```bash
+   git add <files_related_to_this_unit_only>
+   ```
+
+3. **Compose the commit message**
+
+   * Format: `<type>(<scope>): <subject>`
+   * Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `ci`, `chore`
+   * Scopes: `cli`, `templates`, `core`, `workflow`, etc.
+   * Keep the subject ≤ 50 chars, imperative mood (e.g., "add" not "added").
+   * Add a body explaining *why*, not just *what*.
+   * Reference the GitHub Issue if one exists (e.g., `#5`).
+   
+   **Example:**
+   ```
+   feat(cli): add new journal entry command
+   
+   - Implements the 'entry' subcommand for daily journal entries
+   - Uses template from templates/daily.md
+   - Closes #42
+   ```
+
+4. **Commit**
+   ```bash
+   git commit -m "<type>(<scope>): <subject>" -m "<body>"
+   ```
+
+5. **Confirm success** with a short "✅ Changes committed!" reply.
+   If the verification fails, explain why and **do not commit**.
+
+@00-project-overview.mdc 

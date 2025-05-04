@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "moduleResolution": "node16",
+    "target": "ES2022",
+    "outDir": "dist",
+    "declaration": true,
+    "module": "Node16",
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}
