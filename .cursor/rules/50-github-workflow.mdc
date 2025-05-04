@@ -1,3 +1,7 @@
+---
+description: USE WHEN the user is discussing, creating, triaging, or linking a GitHub issue
+globs: 
+---
 # GitHub Workflow Guidelines
 
 This rule defines how to work with GitHub issues in this project.
