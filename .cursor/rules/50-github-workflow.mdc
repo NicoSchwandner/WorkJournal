@@ -1,0 +1,131 @@
+---
+description: USE WHEN the user is discussing, creating, triaging, or linking a GitHub issue
+globs: 
+---
+# GitHub Workflow Guidelines
+
+This rule defines how to work with GitHub issues in this project.
+
+## Issue Development Flow
+
+When working on a task that has an existing GitHub issue:
+
+1. Always check if there's an existing GitHub issue for the current task
+2. Use `gh issue develop -c ISSUE_NR` to create a branch for development
+   - This will create and checkout a new branch named after the issue
+   - The `-c` flag will copy the issue title and description into the branch creation message
+3. Reference the issue number in commit messages using `#ISSUE_NR`
+4. When creating PRs, link them to the relevant issue
+
+## Finishing and Creating PRs
+
+**When an issue is finished and ready to be merged:**
+
+1. Create a PR using GitHub CLI:
+   ```bash
+   GH_PAGER=cat gh pr create --title "Implement feature X" --body "Closes #ISSUE_NR"
+   ```
+
+2. Alternatively, use a more comprehensive PR creation command:
+   ```bash
+   GH_PAGER=cat gh pr create \
+     --title "feat: implement feature described in #ISSUE_NR" \
+     --body "This PR implements the feature described in #ISSUE_NR. 
+
+   ## Changes
+   - Item 1
+   - Item 2
+   
+   Closes #ISSUE_NR" \
+     --assignee $(git config user.name)
+   ```
+
+3. Always include "Closes #ISSUE_NR" in the PR description so GitHub will automatically close the issue when the PR is merged.
+
+## Commands
+
+- Check existing issues: `gh issue list`
+- Start working on an issue: `gh issue develop -c ISSUE_NR`
+- View issue details: `gh issue view ISSUE_NR`
+- Comment on an issue: `gh issue comment ISSUE_NR --body "Your comment"`
+- Create PR: `gh pr create --title "Title" --body "Description closes #ISSUE_NR"`
+- View PR status: `gh pr status`
+- Check PR: `gh pr checkout PR_NUMBER`
+
+## Using GitHub CLI in Cursor
+
+Cursor's terminal doesn't handle interactive features of the GitHub CLI well. Use these techniques to get reliable output:
+
+### 1. Disable the pager
+
+```bash
+# One-time usage
+GH_PAGER=cat gh issue list
+
+# Persistent configuration
+gh config set pager cat
+```
+
+### 2. Disable interactive prompts
+
+```bash
+# Persistent configuration
+gh config set prompt disabled
+
+# One-time usage
+GH_PROMPT_DISABLED=1 gh issue list
+```
+
+### 3. Use machine-readable output formats
+
+```bash
+# JSON output (great for processing)
+gh issue list --json number,title,url --limit 100
+
+# Custom template output
+gh issue list --template '{{range .}}{{printf "#%v %s\n" .number .title}}{{end}}'
+```
+
+### Best combo for Cursor
+
+```bash
+# For listing issues
+GH_PAGER=cat GH_PROMPT_DISABLED=1 gh issue list --json number,title,state,url --limit 100
+
+# For starting work on an issue
+GH_PAGER=cat GH_PROMPT_DISABLED=1 gh issue develop -c ISSUE_NR
+
+# For creating a PR
+GH_PAGER=cat GH_PROMPT_DISABLED=1 gh pr create --title "Title" --body "Closes #ISSUE_NR"
+```
+
+## Commit Message Format
+
+Follow this format for commit messages:
+```
+feat(component): short description #ISSUE_NR
+
+Longer description of what was done and why.
+```
+
+## ⭐ IMPORTANT RULE ⭐
+
+**If there is an existing GitHub issue for a development task, ALWAYS use `gh issue develop -c ISSUE_NR` to start working on it.**
+
+This command:
+1. Creates a properly named branch based on the issue
+2. Ensures proper tracking between code and issues
+3. Makes it easier to automate workflows and track progress
+
+**When finished with an issue, ALWAYS create a PR with `gh pr create` and include "Closes #ISSUE_NR" in the description.**
+
+## Pull Request Guidelines
+
+When creating PRs:
+- Link to the issue using "Fixes #ISSUE_NR" or "Resolves #ISSUE_NR" or "Closes #ISSUE_NR" in the PR description
+- Request appropriate reviewers
+- Add relevant labels
+- Include a summary of changes
+- Add testing instructions if applicable
+
+Remember to always work on a dedicated branch for each issue, never directly on main. 
