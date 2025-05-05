@@ -33,7 +33,7 @@ export function packageTemplatesDir(): string {
     return join(currentFilePath, "..", "..", "templates");
   } catch (e) {
     // Fallback for CJS context
-    // Needs to go up from lib -> src -> packages/cli -> templates
-    return join(__dirname, "..", "..", "templates");
+    // Needs to go up from lib -> src -> cli -> packages -> templates
+    return join(__dirname, "..", "..", "..", "..", "templates");
   }
 }
