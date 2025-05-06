@@ -134,4 +134,48 @@ describe("config command", () => {
     // Verify result
     expect(result).toBe(20);
   });
+
+  // New case-insensitive tests
+  test("get should be case-insensitive", () => {
+    // Setup config with camelCase key
+    runConfigSet("vacationStartDay", "15");
+
+    // Try different case variations
+    expect(runConfigGet("vacationstartday")).toBe(15);
+    expect(runConfigGet("VACATIONSTARTDAY")).toBe(15);
+    expect(runConfigGet("VacationStartDay")).toBe(15);
+  });
+
+  test("set should overwrite existing keys case-insensitively", () => {
+    // Setup initial value with one casing
+    runConfigSet("vacationStartDay", "15");
+
+    // Set with different casing
+    runConfigSet("VACATIONSTARTDAY", "25");
+
+    // Check results
+    const config = JSON.parse(readFileSync(cfgFile, "utf8"));
+
+    // Should only have one key (the newest one)
+    expect(Object.keys(config).length).toBe(1);
+    expect(Object.keys(config)[0]).toBe("VACATIONSTARTDAY");
+    expect(config.VACATIONSTARTDAY).toBe(25);
+
+    // Should be retrievable with any casing
+    expect(runConfigGet("vacationstartday")).toBe(25);
+  });
+
+  test("set preserves the original casing of the most recent key", () => {
+    // Set with different casings in sequence
+    runConfigSet("myKey", "value1");
+    runConfigSet("MyKey", "value2");
+    runConfigSet("MYKEY", "value3");
+
+    const config = JSON.parse(readFileSync(cfgFile, "utf8"));
+
+    // Should only have the last key with its original casing
+    expect(Object.keys(config).length).toBe(1);
+    expect(Object.keys(config)[0]).toBe("MYKEY");
+    expect(config.MYKEY).toBe("value3");
+  });
 });
