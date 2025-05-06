@@ -54,4 +54,8 @@ temp/
 .yarn-integrity
 
 # Misc
-.cache/ 
+.cache/
+
+# Generated journal files
+/Journal/
+/templates/*_template.md~ 
