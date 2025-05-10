@@ -1,8 +1,8 @@
 # 🗒️ Work-Journal
 
-_Generate, organise, and reflect on your work journal—cross-platform, open-source, zero-friction._
+> Zero-friction Markdown journal for developers.
 
----
+[![GitHub CI](https://github.com/user/work-journal/actions/workflows/test.yml/badge.svg)](https://github.com/user/work-journal/actions/workflows/test.yml) [![npm](https://img.shields.io/npm/v/work-journal)](https://www.npmjs.com/package/work-journal) [![License](https://img.shields.io/github/license/user/work-journal)](https://github.com/user/work-journal/blob/main/LICENSE)
 
 ## Why?
 
@@ -11,18 +11,23 @@ Keeping a lightweight text journal helps you…
 - stay focussed instead of juggling half-finished tasks in your head
 - surface blockers early and record decisions for future you
 - give crystal-clear stand-up updates without scrolling Slack history
-- see long-term progress (weekly / quarterly reflections)
+- see long-term progress (weekly / quarterly reflections)
 
 Traditional "note apps" feel heavy, manual, or vendor-locked.  
 **Work-Journal** lives in plain Markdown, plays nicely with Git, and automates the boring bits.
 
----
+<figure>
+  <img src="docs/journal-example.svg" alt="Journal entry example" width="600"/>
+  <figcaption>Clean, simple Markdown journals with task tracking.</figcaption>
+</figure>
 
 ## Quick Start
 
+<a id="quick-start"></a>
+
 > **Node 18 +** is the only runtime requirement.
 
-### Option A — _no tooling at all_
+### Option A — _no tooling at all_ (30s)
 
 ```bash
 git clone --depth 1 https://github.com/<you>/work-journal.git
@@ -30,14 +35,22 @@ cp work-journal/templates/daily_template.md .
 # open in any editor, start writing
 ```
 
-### Option B — _auto-generate today's entry_
+### Option B — _auto-generate today's entry_ (30s)
 
 ```bash
 # one-shot (no global install)
 npx work-journal new           # creates Journal/2025/05/2025-05-02.md
-
-# or add a VS Code task
+# or with pnpm
+pnpm dlx work-journal new
 ```
+
+```bash
+# global install (optional)
+pnpm add -g work-journal   # now 'work-journal new' works anywhere
+alias wj="work-journal"    # use 'wj new' for even less friction
+```
+
+### Option C — _VS Code integration_
 
 `.vscode/tasks.json`
 
@@ -52,11 +65,29 @@ npx work-journal new           # creates Journal/2025/05/2025-05-02.md
 
 Hit <kbd>⌘⇧B</kbd> (or your build key) and the file opens ready for typing.
 
----
+<figure>
+  <img src="docs/vscode-task.svg" alt="VS Code task demo" width="650"/>
+  <figcaption>Hit ⇧⌘B and start writing.</figcaption>
+</figure>
+
+<a id="placeholder-ref"></a>
+
+## Placeholder Reference
+
+| Token        | Example      | Description            |
+| ------------ | ------------ | ---------------------- |
+| `$date`      | `2025-05-02` | ISO date (local TZ)    |
+| `$week`      | `18`         | ISO-8601 week number   |
+| `$month`     | `05`         | Two-digit month        |
+| `$monthName` | `May`        | Localised long month   |
+| `$quarter`   | `2`          | Calendar quarter (1-4) |
+| `$year`      | `2025`       | Four-digit year        |
+
+<a id="features"></a>
 
 ## Features
 
-| ✔   | What                             | Notes                                                          |
+| ✅  | What                             | Notes                                                          |
 | --- | -------------------------------- | -------------------------------------------------------------- |
 | ✅  | **Template engine**              | Daily, weekly, monthly, quarterly, yearly                      |
 | ✅  | **Three-level lookup**           | `./templates/` → `~/.config/work-journal/` → packaged defaults |
@@ -65,19 +96,26 @@ Hit <kbd>⌘⇧B</kbd> (or your build key) and the file opens ready for typing.
 | 🏗   | **Binary release**               | Planned (skip for v1)                                          |
 | 🏗   | **Custom placeholder variables** | Road-mapped                                                    |
 
----
+<a id="template-override"></a>
 
-## Placeholder Reference
+## Template Override Lookup
 
-| Token        | Example      | Description            |
-| ------------ | ------------ | ---------------------- |
-| `$date`      | `2025-05-02` | ISO date (local TZ)    |
-| `$week`      | `18`         | ISO-8601 week number   |
-| `$monthName` | `May`        | Localised long month   |
-| `$quarter`   | `2`          | Calendar quarter (1-4) |
-| `$year`      | `2025`       | Four-digit year        |
+```
+┌───────────────┐     ┌────────────────────────┐     ┌────────────────────────┐
+│ ./templates/  │ → │ ~/.config/work-journal/ │ → │ packaged defaults (npm) │
+└───────────────┘     └────────────────────────┘     └────────────────────────┘
+```
 
----
+## Configuration Examples
+
+```bash
+# Set last Friday before X-mas break to Dec 20 instead of 17
+npx work-journal config set vacationStartDay 20
+npx work-journal config get vacationStartDay
+# 20
+```
+
+<a id="repo-layout"></a>
 
 ## Repository Layout
 
@@ -86,12 +124,36 @@ work-journal/
 ├─ templates/          # default Markdown templates
 ├─ packages/
 │   └─ cli/            # TypeScript CLI (published as "work-journal")
+│       └─ dist/       # Compiled JavaScript (post-build)
+├─ .changeset/         # Release change descriptions
 ├─ .cursor/rules/      # Cursor AI coding rules
 ├─ .github/workflows/  # CI matrix & release
 └─ README.md
 ```
 
----
+<a id="cli-reference"></a>
+
+## CLI Reference
+
+<details>
+<summary>work-journal --help</summary>
+
+```text
+work-journal <command>
+
+Commands:
+  work-journal init    seed templates in ./templates
+  work-journal new     create or append to today's journal entry
+  work-journal config  Manage configuration
+
+Options:
+  --version  Show version number                                       [boolean]
+  --help     Show help                                                 [boolean]
+```
+
+</details>
+
+<a id="developing"></a>
 
 ## Developing & Testing
 
@@ -103,7 +165,7 @@ pnpm test              # Vitest unit + integration suite
 
 GitHub Actions runs the same tests on Ubuntu, macOS, and Windows with Node 18 & 20.
 
----
+<a id="contributing"></a>
 
 ## Contributing
 
@@ -113,6 +175,8 @@ GitHub Actions runs the same tests on Ubuntu, macOS, and Windows with Node 18 & 
    - Non-interactive: `./create-changeset.sh work-journal patch "Description of your change"`
 3. Add or update tests.
 4. Open a PR — CI must pass before merge.
+
+> **Note for Node 20+ users**: If you don't have pnpm installed, run `corepack enable` to use the version pinned in the repo.
 
 Once merged to main, the GitHub Actions workflow will:
 
@@ -138,7 +202,7 @@ We use [Changesets](https://github.com/changesets/changesets) to manage versioni
    - Create a PR to update all package versions
    - When that PR is merged, publish packages to npm
 
----
+<a id="roadmap"></a>
 
 ## Roadmap
 
@@ -147,8 +211,22 @@ We use [Changesets](https://github.com/changesets/changesets) to manage versioni
 - [ ] Optional daily cron GitHub Action that PRs tomorrow's entry
 - [ ] Editor snippets for JetBrains / Vim
 
----
+<a id="pre-commit"></a>
 
-## Licence
+## Pre-commit Hook Suggestion
+
+We recommend running tests and linting before pushing changes:
+
+```bash
+npx husky add .husky/pre-push "pnpm test && npx markdownlint-cli2 ."
+```
+
+<a id="license"></a>
+
+## License
 
 [Apache 2.0](LICENSE)
+
+---
+
+Made with 💚 in Göteborg
