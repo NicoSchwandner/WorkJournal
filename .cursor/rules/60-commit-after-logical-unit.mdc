@@ -1,7 +1,6 @@
 ---
 description: USE WHEN a discrete logical unit of work is finished **and** its functionality has been verified (build, tests pass).
-globs:
-alwaysApply: false
+globs: 
 ---
 
 ## Commit Workflow
@@ -16,12 +15,19 @@ alwaysApply: false
    ```
    Abort if anything fails.
 
-2. **Stage relevant files**
+2. **Create a changeset** if the changes warrant a version bump
+   - See the [65-changeset-creation](mdc:65-changeset-creation) rule for detailed guidance
+   - Remember: not all commits need a changeset, only those affecting published packages
+
+3. **Stage relevant files**
    ```bash
    git add <files_related_to_this_unit_only>
+   
+   # If you created a changeset, include it
+   git add .changeset/*.md
    ```
 
-3. **Compose the commit message**
+4. **Compose the commit message**
 
    * Format: `<type>(<scope>): <subject>`
    * Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `ci`, `chore`
@@ -29,6 +35,7 @@ alwaysApply: false
    * Keep the subject ≤ 50 chars, imperative mood (e.g., "add" not "added").
    * Add a body explaining *why*, not just *what*.
    * Reference the GitHub Issue if one exists (e.g., `#5`).
+   * Indicate if a changeset was created.
    
    **Example:**
    ```
@@ -36,15 +43,16 @@ alwaysApply: false
    
    - Implements the 'entry' subcommand for daily journal entries
    - Uses template from templates/daily.md
+   - Includes changeset for minor version bump
    - Closes #42
    ```
 
-4. **Commit**
+5. **Commit**
    ```bash
    git commit -m "<type>(<scope>): <subject>" -m "<body>"
    ```
 
-5. **Confirm success** with a short "✅ Changes committed!" reply.
+6. **Confirm success** with a short "✅ Changes committed!" reply.
    If the verification fails, explain why and **do not commit**.
 
-@00-project-overview.mdc 
+[00-project-overview.mdc](mdc:.cursor/rules/00-project-overview.mdc) [65-changeset-creation.mdc](mdc:.cursor/rules/65-changeset-creation.mdc)

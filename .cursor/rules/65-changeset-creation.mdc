@@ -1,0 +1,75 @@
+---
+description: USE WHEN you need information on how and when to create changesets
+globs: 
+---
+ # Changeset Creation for Logical Units of Work
+
+USE WHEN completing a feature, fixing a bug, or any other logical unit of work that would merit a version change in the published packages.
+
+## When to Create a Changeset
+
+Create a changeset in the following scenarios:
+1. When implementing a GitHub issue
+2. When making any change that affects the public API or behavior of a package
+3. When fixing a bug
+4. When making significant internal refactors that might impact users
+
+**Note**: Not every commit requires a changeset. Focus on changes that would be relevant to users or would require a version bump.
+
+## Changeset Creation Process
+
+1. **Determine the impact level**:
+   - `patch`: Bug fixes and minor changes that don't affect the API
+   - `minor`: New features, non-breaking enhancements
+   - `major`: Breaking changes to the API or behavior
+
+2. **Create the changeset**:
+   ```bash
+   # Using the interactive CLI
+   pnpm changeset
+   
+   # Or using the non-interactive script with a custom message
+   ./create-changeset.sh work-journal [patch|minor|major] "Description of your change"
+   
+   # Or using convenience scripts for simpler changes
+   pnpm run changeset:patch  # For bug fixes
+   pnpm run changeset:minor  # For new features
+   pnpm run changeset:major  # For breaking changes
+   ```
+
+3. **Review the generated changeset file** in the `.changeset/` directory to ensure it correctly describes your changes.
+
+4. **Include the changeset file in your commit**:
+   ```bash
+   git add .changeset/[your-changeset-file].md
+   ```
+
+5. **Make your commit following the commit guidelines** from the [60-commit-after-logical-unit](60-commit-after-logical-unit) rule.
+
+## Example Workflow
+
+```bash
+# After completing work on an issue
+pnpm test  # Verify everything works
+
+# Create a changeset for a new feature
+./create-changeset.sh work-journal minor "Add support for weekly templates"
+
+# Stage all relevant files including the changeset
+git add .changeset/work-journal-minor-*.md src/
+
+# Commit with a proper message
+git commit -m "feat(cli): add support for weekly templates
+
+- Weekly entries now supported with specialized templates
+- Closes #123"
+```
+
+## Best Practices
+
+1. **One changeset per logical change**: Create separate changesets for separate features or fixes
+2. **Be descriptive**: Write changeset messages that will be helpful in the changelog
+3. **Link to issues**: Reference GitHub issue numbers in your changeset messages
+4. **Appropriate impact levels**: Don't use `major` for small fixes or `patch` for breaking changes
+
+[00-project-overview.mdc](mdc:.cursor/rules/00-project-overview.mdc) [60-commit-after-logical-unit.mdc](mdc:.cursor/rules/60-commit-after-logical-unit.mdc)
