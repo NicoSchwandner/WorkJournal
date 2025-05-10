@@ -8,12 +8,14 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs --dts",
-    "postbuild": "rm -rf ./templates && mkdir -p ./templates && cp -R ../../templates/*.md ./templates/",
+    "postbuild": "node copy-templates.js",
+    "prepare": "pnpm run build",
     "test": "vitest run"
   },
   "files": [
     "dist",
-    "templates"
+    "templates",
+    "copy-templates.js"
   ],
   "keywords": [],
   "author": "",
