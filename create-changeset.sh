@@ -17,10 +17,13 @@ if [[ ! "$BUMP_TYPE" =~ ^(patch|minor|major)$ ]]; then
   exit 1
 fi
 
-# Create a changeset file directly
-CHANGESET_ID=$(date +%s)
+# Create a changeset file directly with a human-readable ID
+# Format: [package-name]-[bump-type]-[YYYYMMDD]-[short-random]
+CURRENT_DATE=$(date +%Y%m%d)
+SHORT_RANDOM=$(head -c 4 /dev/urandom | od -An -tx1 | tr -d ' \n' | cut -c-4)
+CHANGESET_ID="${PACKAGE_NAME}-${BUMP_TYPE}-${CURRENT_DATE}-${SHORT_RANDOM}"
 CHANGESET_DIR=".changeset"
-CHANGESET_FILE="$CHANGESET_DIR/change-$CHANGESET_ID.md"
+CHANGESET_FILE="$CHANGESET_DIR/${CHANGESET_ID}.md"
 
 # Create the content for the changeset file
 cat > "$CHANGESET_FILE" << EOL
