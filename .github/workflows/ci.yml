@@ -17,20 +17,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      # 1️⃣ Install pnpm first (without caching)
       - uses: pnpm/action-setup@v3
         with:
           version: 10.10.0
           run_install: false
-
-      # 2️⃣ Then set up Node.js with pnpm caching
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: "pnpm"
-
-      # 3️⃣ Now run the normal workflow
+          cache: pnpm
+          cache-dependency-path: "**/pnpm-lock.yaml"
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
       - run: pnpm test
