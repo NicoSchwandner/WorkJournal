@@ -2,7 +2,7 @@
 
 > Zero-friction Markdown journal for developers.
 
-[![CI](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml/badge.svg)](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/work-journal)](https://www.npmjs.com/package/work-journal) [![License](https://img.shields.io/github/license/user/work-journal)](https://github.com/NicoSchwandner/WorkJournal/blob/main/LICENSE)
+[![CI](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml/badge.svg)](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/work-journal)](https://www.npmjs.com/package/work-journal) [![License](https://img.shields.io/github/license/NicoSchwandner/work-journal)](https://github.com/NicoSchwandner/WorkJournal/blob/main/LICENSE)
 
 ## Why?
 
