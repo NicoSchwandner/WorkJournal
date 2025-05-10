@@ -2,28 +2,27 @@ name: Release
 
 on:
   workflow_run:
-    workflows: ["CI"] # keep the name identical to ci.yml
+    workflows: ["CI"]
     branches: [main]
     types: [completed]
 
 jobs:
-  publish-and-tag:
+  release:
     if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
-      contents: write # required for pushing tags
-      packages: write # optional (GH Packages)
+      contents: write # version PR + tags
+      pull-requests: write
+      packages: write # needed if you ever publish to GH Packages
 
     steps:
       - uses: actions/checkout@v4
 
-      # Install pnpm first
       - uses: pnpm/action-setup@v3
         with:
           version: 10.10.0
           run_install: false
 
-      # Then set up Node with pnpm caching
       - name: Set up Node 20 + pnpm cache
         uses: actions/setup-node@v4
         with:
@@ -32,21 +31,15 @@ jobs:
           registry-url: "https://registry.npmjs.org/"
           cache-dependency-path: "**/pnpm-lock.yaml"
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm -r run build
+      - run: pnpm install --frozen-lockfile # install once for all steps
 
-      - name: Publish via Changesets
+      - name: Build CLI + copy templates
+        run: pnpm -r run build
+
+      - name: Release with Changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm exec changeset publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm exec changeset publish
-
-      - name: Tag git with published version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          version=$(jq -r '.version' packages/cli/package.json)
-          git config user.name  'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git tag "v$version"
-          git push --tags
