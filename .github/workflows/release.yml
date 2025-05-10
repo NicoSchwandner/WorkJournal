@@ -1,57 +1,52 @@
 name: Release
-on:
-  push:
-    branches: [main]
 
-permissions:
-  contents: write
-  pull-requests: write
+on:
+  workflow_run:
+    workflows: ["CI"] # keep the name identical to ci.yml
+    branches: [main]
+    types: [completed]
 
 jobs:
-  release:
-    name: Release
+  publish-and-tag:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # required for pushing tags
+      packages: write # optional (GH Packages)
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+      # Install pnpm first
+      - uses: pnpm/action-setup@v3
         with:
-          version: 9
+          version: 10.10.0
+          run_install: false
 
-      - name: Setup Node.js
+      # Then set up Node with pnpm caching
+      - name: Set up Node 20 + pnpm cache
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          registry-url: "https://registry.npmjs.org"
-          cache: "pnpm"
+          node-version: "20"
+          cache: pnpm
+          registry-url: "https://registry.npmjs.org/"
+          cache-dependency-path: "**/pnpm-lock.yaml"
 
-      # Cache pnpm store
-      - name: Cache pnpm store
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r run build
 
-      - name: Install Dependencies
-        run: pnpm install
+      - name: Publish via Changesets
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm exec changeset publish
 
-      - name: Build Packages
-        run: pnpm -r run build
-
-      - name: Create Release Pull Request or Publish
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          # The following line determines the behavior of the action
-          publish: npx changeset publish
-          # Optionally you can specify a different command for versioning
-          version: pnpm run version
+      - name: Tag git with published version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          version=$(jq -r '.version' packages/cli/package.json)
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag "v$version"
+          git push --tags
