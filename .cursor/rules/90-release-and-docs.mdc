@@ -1,9 +1,6 @@
 ---
 description: Versioning, changelogs and docs style
-globs:
-  - '.changeset/*'
-  - 'docs/**'
-alwaysApply: false
+globs: 
 ---
 
 ### Versioning
@@ -19,4 +16,4 @@ alwaysApply: false
 * Prefer fenced code blocks with language hints (`ts`, `bash`, `mdc`).  
 * Any CLI flag added **must** be documented within 24 h of merge.
 
-@00-project-overview.mdc
+[00-project-overview.mdc](mdc:.cursor/rules/00-project-overview.mdc)

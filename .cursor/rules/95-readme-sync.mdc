@@ -1,13 +1,6 @@
 ---
 description: README must be updated whenever user-facing behaviour changes
-globs:
-  # Any CLI command, flag or help text
-  - 'packages/cli/src/commands/**/*.ts'
-  # Any new or modified template that may add placeholders
-  - 'templates/**/*_template.md'
-  # The README itself
-  - 'README.md'
-alwaysApply: false        # Applies only when the matching files are in the diff
+globs: 
 ---
 
 ### Rule
@@ -31,4 +24,4 @@ When you **add, rename, or change** any of the following, you _must_ also update
 
 > Skip README edits **only** if the code change is strictly internal and has **zero** impact on any user-visible behaviour.
 
-@90-release-and-docs.mdc
+[90-release-and-docs.mdc](mdc:.cursor/rules/90-release-and-docs.mdc)

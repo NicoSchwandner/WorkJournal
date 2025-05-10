@@ -1,9 +1,6 @@
 ---
 description: Testing strategy & coverage expectations
-globs:
-  - 'packages/**/*.test.ts'
-  - 'packages/cli/src/lib/**'
-alwaysApply: false
+globs: 
 ---
 
 ### Framework
@@ -27,4 +24,4 @@ Test against:
 * Node – 18 & 20  
 (see `.github/workflows/ci.yml`)
 
-@00-project-overview.mdc
+[00-project-overview.mdc](mdc:.cursor/rules/00-project-overview.mdc)

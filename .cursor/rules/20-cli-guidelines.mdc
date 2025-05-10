@@ -1,8 +1,6 @@
 ---
 description: How to extend or refactor the CLI in packages/cli
-globs:
-  - 'packages/cli/**'
-alwaysApply: false
+globs: 
 ---
 
 ### Command registration  
@@ -29,4 +27,4 @@ Do **not** call `date-fns` directly inside commands; keep calculations centralis
 `--open` flag resolves `$EDITOR` → falls back to `code`.
 Never assume VS Code is installed globally; catch spawn errors and log a path hint instead.
 
-@00-project-overview.mdc
+[00-project-overview.mdc](mdc:.cursor/rules/00-project-overview.mdc)
