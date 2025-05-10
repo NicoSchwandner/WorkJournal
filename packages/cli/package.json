@@ -8,10 +8,12 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs --dts",
+    "postbuild": "rm -rf ./templates && mkdir -p ./templates && cp -R ../../templates/*.md ./templates/",
     "test": "vitest run"
   },
   "files": [
-    "dist"
+    "dist",
+    "templates"
   ],
   "keywords": [],
   "author": "",

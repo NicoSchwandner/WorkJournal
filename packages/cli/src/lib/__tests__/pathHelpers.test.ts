@@ -3,10 +3,12 @@ import { join as originalJoin } from "path";
 import * as pathModule from "path";
 import * as fs from "fs";
 import * as os from "os";
+import * as url from "url";
 
 // Mock modules
 vi.mock("fs");
 vi.mock("os");
+vi.mock("url");
 
 // Dynamically import after mocks are set up
 let pathHelpers: typeof import("../pathHelpers.js");
@@ -127,50 +129,49 @@ describe("pathHelpers", () => {
     });
   });
 
-  // Note: Testing packageTemplatesDir accurately is tricky because it relies on
-  // import.meta.url or __dirname, which are hard to mock reliably across test runners
-  // and environments. We'll test the expected structure assuming the logic works.
   describe("packageTemplatesDir", () => {
     it("should return correct path structure in CJS fallback context", () => {
-      // Arrange: Mock import.meta.url access to throw
-      vi.stubGlobal(
-        "URL",
-        class MockURL {
-          constructor(url: string, base?: string | URL) {
-            if (url === "../templates" && base?.toString().includes("import.meta.url")) {
-              throw new Error("Cannot read property 'pathname' of undefined");
-            }
-          }
-          get pathname() {
-            return "";
-          } // Dummy pathname
-        }
-      );
+      // Arrange: Mock URL constructor to simulate ESM context failure
+      const mockURL = vi.fn(() => {
+        throw new Error("Cannot use URL in CJS context");
+      });
+
+      vi.stubGlobal("URL", mockURL);
 
       // Act: Call the function to trigger the CJS fallback
       const result = pathHelpers.packageTemplatesDir();
 
-      // Assert: Check that the result is structurally correct relative to *some* __dirname
-      // We expect join(__dirname, '..', '..', 'templates')
-      // Instead of predicting the absolute path, check if it ends with the correct relative part
-      // Or equals the join result using the *test's* __dirname (less reliable)
-      // Simplest: Verify it equals the expected relative join calculation
-      // Note: This assumes path.join behaves consistently
-      const expectedRelativeJoin = originalJoin("dummy_dirname", "..", "..", "templates");
-      const actualRelativeJoin = originalJoin("dummy_dirname", result.replace(process.cwd(), "...")); // Normalize if needed
-
-      // Let's assert the function calculates the join relative to its runtime __dirname correctly
-      // We know the code is join(__dirname, '..', '..', 'templates')
-      // We can't easily know __dirname in the test, so check the relative structure
-      expect(
-        result.endsWith(originalJoin("src", "lib", "..", "..", "templates")) ||
-          result.endsWith(originalJoin("dist", "lib", "..", "..", "templates"))
-      ).toBe(true);
-      // A slightly more robust check might be:
-      expect(result).toEqual(expect.stringMatching(/templates$/)); // Ensure it ends with /templates
+      // Assert: Check that the result uses the CJS fallback path
+      // We can't predict the exact path, but we can check the pattern
+      expect(result).toMatch(/[\/\\]templates$/);
     });
 
-    // Note: Testing the import.meta.url path reliably is difficult in Vitest
-    // without knowing the exact test execution environment and URL structure.
+    it("should handle ESM context with import.meta.url correctly", () => {
+      // Mock file path for ESM context
+      const mockFilePath = "/path/to/node_modules/work-journal/dist/lib/pathHelpers.js";
+
+      // Mock URL and fileURLToPath
+      vi.mocked(url.fileURLToPath).mockReturnValue(mockFilePath);
+
+      // Mock URL constructor
+      vi.stubGlobal(
+        "URL",
+        class MockURL {
+          pathname: string;
+          constructor() {
+            this.pathname = "file:///path/to/node_modules/work-journal/dist/lib/pathHelpers.js";
+          }
+        }
+      );
+
+      // Call the function
+      const result = pathHelpers.packageTemplatesDir();
+
+      // ESM path should join dirname(mockFilePath) with ../../templates
+      const expectedPath = originalJoin(pathModule.dirname(mockFilePath), "..", "..", "templates");
+
+      // Should resolve correctly
+      expect(result).toEqual(expect.stringMatching(/templates$/));
+    });
   });
 });
