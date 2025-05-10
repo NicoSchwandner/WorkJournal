@@ -1,15 +1,26 @@
 import { homedir } from "os";
-import { join } from "path";
+import { join, dirname, parse } from "path";
 import { existsSync, statSync } from "fs";
 
 export function projectTemplatesDir(): string | null {
-  let currentDir = process.cwd();
-  while (currentDir !== "/") {
-    const templatesPath = join(currentDir, "templates");
+  let dir = process.cwd();
+  const root = parse(dir).root; // Gets "C:\", "D:\", or "/" depending on platform
+
+  // Adding a safety counter to prevent infinite loops
+  let depth = 0;
+  const MAX_DEPTH = 50;
+
+  while (true) {
+    const templatesPath = join(dir, "templates");
     if (existsSync(templatesPath) && statSync(templatesPath).isDirectory()) {
       return templatesPath;
     }
-    currentDir = join(currentDir, "..");
+
+    // Break if we've reached the root or max depth (as a safety measure)
+    if (dir === root || depth++ >= MAX_DEPTH) break;
+
+    // Use dirname instead of manual join with ".." for better cross-platform support
+    dir = dirname(dir);
   }
   return null;
 }
