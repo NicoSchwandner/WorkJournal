@@ -17,14 +17,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Node & pnpm
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10.10.0
+          run_install: false
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: pnpm # automatic pnpm store caching
-
-      - run: corepack enable # makes the repo-pinned pnpm available
+          cache: pnpm
+          cache-dependency-path: "**/pnpm-lock.yaml"
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
       - run: pnpm test
