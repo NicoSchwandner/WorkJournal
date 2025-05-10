@@ -13,7 +13,7 @@ Keeping a lightweight text journal helps you…
 - give crystal-clear stand-up updates without scrolling Slack history
 - see long-term progress (weekly / quarterly reflections)
 
-Traditional “note apps” feel heavy, manual, or vendor-locked.  
+Traditional "note apps" feel heavy, manual, or vendor-locked.  
 **Work-Journal** lives in plain Markdown, plays nicely with Git, and automates the boring bits.
 
 ---
@@ -30,7 +30,7 @@ cp work-journal/templates/daily_template.md .
 # open in any editor, start writing
 ```
 
-### Option B — _auto-generate today’s entry_
+### Option B — _auto-generate today's entry_
 
 ```bash
 # one-shot (no global install)
@@ -108,9 +108,35 @@ GitHub Actions runs the same tests on Ubuntu, macOS, and Windows with Node 18 & 
 ## Contributing
 
 1. Fork & create a feature branch.
-2. Run `pnpm changeset` and describe your change.
+2. Make your changes and add a changeset:
+   - Interactive mode: `pnpm changeset`
+   - Non-interactive: `./create-changeset.sh work-journal patch "Description of your change"`
 3. Add or update tests.
 4. Open a PR — CI must pass before merge.
+
+Once merged to main, the GitHub Actions workflow will:
+
+1. Detect any changeset files and create a Version Package PR
+2. When that PR is merged, automatically publish the package to npm
+
+### Release Process
+
+We use [Changesets](https://github.com/changesets/changesets) to manage versioning and publishing:
+
+1. When making a change, create a changeset file using one of these commands:
+
+   - `pnpm changeset` - Interactive mode
+   - `pnpm run changeset:patch` - Non-interactive patch version bump with default message
+   - `pnpm run changeset:minor` - Non-interactive minor version bump with default message
+   - `pnpm run changeset:major` - Non-interactive major version bump with default message
+   - `./create-changeset.sh work-journal patch "Your specific message"` - Custom message
+
+2. Commit the generated file in `.changeset/` with your changes
+
+3. On merge to main, a GitHub Action will automatically:
+   - Use the changesets to determine the next version
+   - Create a PR to update all package versions
+   - When that PR is merged, publish packages to npm
 
 ---
 
@@ -118,7 +144,7 @@ GitHub Actions runs the same tests on Ubuntu, macOS, and Windows with Node 18 & 
 
 - [ ] Bundle single-file binaries via `pkg`
 - [ ] Internationalisation (date format + template language)
-- [ ] Optional daily cron GitHub Action that PRs tomorrow’s entry
+- [ ] Optional daily cron GitHub Action that PRs tomorrow's entry
 - [ ] Editor snippets for JetBrains / Vim
 
 ---
