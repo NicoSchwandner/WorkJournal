@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <!-- Dark VS Code Background -->
+  <rect width="600" height="400" fill="#1e1e1e"/>
+  
+  <!-- Editor Tab Bar -->
+  <rect x="0" y="0" width="600" height="30" fill="#252526"/>
+  <rect x="10" y="0" width="180" height="30" fill="#0e639c"/>
+  <text x="100" y="20" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="12" fill="#ffffff" text-anchor="middle">
+    2025-05-02.md
+  </text>
+  
+  <!-- File Explorer -->
+  <rect x="0" y="30" width="150" height="370" fill="#252526"/>
+  <text x="75" y="50" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="11" fill="#cccccc" text-anchor="middle">
+    EXPLORER
+  </text>
+  <text x="20" y="75" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="11" fill="#cccccc">
+    > Journal
+  </text>
+  <text x="40" y="95" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="11" fill="#cccccc">
+    > 2025
+  </text>
+  <text x="60" y="115" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="11" fill="#cccccc">
+    > 05
+  </text>
+  <text x="80" y="135" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="11" fill="#cccccc" font-weight="bold">
+    2025-05-02.md
+  </text>
+  
+  <!-- Journal Content -->
+  <rect x="150" y="30" width="450" height="370" fill="#1e1e1e"/>
+  
+  <!-- Markdown Content with syntax highlighting -->
+  <text x="170" y="60" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="14" fill="#569cd6" font-weight="bold">
+    # Daily Journal - 2025-05-02
+  </text>
+  
+  <text x="170" y="90" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="14" fill="#569cd6" font-weight="bold">
+    ## Today's Focus
+  </text>
+  
+  <text x="170" y="120" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="14" fill="#cccccc">
+    - [x] Implement README.md updates for issue #9
+  </text>
+  
+  <text x="170" y="150" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="14" fill="#cccccc">
+    - [x] Create VS Code task demo visualisation
+  </text>
+  
+  <text x="170" y="180" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="14" fill="#cccccc">
+    - [ ] Submit PR for review
+  </text>
+  
+  <text x="170" y="220" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="14" fill="#569cd6" font-weight="bold">
+    ## Accomplishments
+  </text>
+  
+  <text x="170" y="250" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="14" fill="#cccccc">
+    1. Fixed badge placement in README header
+  </text>
+  
+  <text x="170" y="280" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="14" fill="#cccccc">
+    2. Added missing `$month` token to placeholder reference
+  </text>
+  
+  <text x="170" y="310" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="14" fill="#cccccc">
+    3. Updated repository layout diagram
+  </text>
+  
+  <text x="170" y="340" font-family="Menlo, Monaco, 'Courier New', monospace" font-size="14" fill="#cccccc">
+    4. Created docs and screenshots for better UX
+  </text>
+</svg> 
