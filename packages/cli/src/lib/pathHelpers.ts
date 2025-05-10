@@ -1,6 +1,7 @@
 import { homedir } from "os";
 import { join, dirname, parse } from "path";
 import { existsSync, statSync } from "fs";
+import { fileURLToPath } from "url";
 
 export function projectTemplatesDir(): string | null {
   let dir = process.cwd();
@@ -35,16 +36,13 @@ export function userTemplatesDir(): string | null {
 }
 
 export function packageTemplatesDir(): string {
-  // Assuming this file is in packages/cli/src/lib
-  // Adjust the relative path if the file structure changes
   try {
     // Use import.meta.url if available (ESM context)
     // @ts-ignore - Supress TS error for potential undefined import.meta
-    const currentFilePath = new URL(import.meta.url).pathname;
-    return join(currentFilePath, "..", "..", "templates");
+    const dirOfThisFile = dirname(fileURLToPath(import.meta.url)); // dist/lib
+    return join(dirOfThisFile, "..", "..", "templates"); // dist/../.. = package root
   } catch (e) {
     // Fallback for CJS context
-    // Needs to go up from lib -> src -> cli -> packages -> templates
-    return join(__dirname, "..", "..", "..", "..", "templates");
+    return join(__dirname, "..", "..", "templates");
   }
 }

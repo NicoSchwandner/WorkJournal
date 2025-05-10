@@ -58,4 +58,7 @@ temp/
 
 # Generated journal files
 /Journal/
-/templates/*_template.md~ 
+/templates/*_template.md~
+
+# Generated template files from build process
+/packages/cli/templates/ 

@@ -8,10 +8,14 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs --dts",
+    "postbuild": "node copy-templates.js",
+    "prepare": "pnpm run build",
     "test": "vitest run"
   },
   "files": [
-    "dist"
+    "dist",
+    "templates",
+    "copy-templates.js"
   ],
   "keywords": [],
   "author": "",
