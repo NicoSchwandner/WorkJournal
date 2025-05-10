@@ -36,13 +36,24 @@ export function userTemplatesDir(): string | null {
 }
 
 export function packageTemplatesDir(): string {
+  // 1. locate the nearest package.json
+  let pkgJson: string;
   try {
-    // Use import.meta.url if available (ESM context)
-    // @ts-ignore - Supress TS error for potential undefined import.meta
-    const dirOfThisFile = dirname(fileURLToPath(import.meta.url)); // dist/lib
-    return join(dirOfThisFile, "..", "..", "templates"); // dist/../.. = package root
+    // First try to resolve package.json relative to __dirname
+    pkgJson = require.resolve("../../package.json", { paths: [__dirname] });
   } catch (e) {
-    // Fallback for CJS context
-    return join(__dirname, "..", "..", "templates");
+    try {
+      // In ESM context, use import.meta.url if available
+      // @ts-ignore - Suppress TS error for potential undefined import.meta
+      const dirOfThisFile = dirname(fileURLToPath(import.meta.url)); // dist/lib
+      return join(dirOfThisFile, "..", "..", "templates"); // dist/../.. = package root
+    } catch (e) {
+      // Final fallback: two levels up from the compiled file
+      return join(__dirname, "..", "..", "templates");
+    }
   }
+
+  // Get the package root directory from the resolved package.json path
+  const pkgRoot = dirname(pkgJson); // .../node_modules/work-journal
+  return join(pkgRoot, "templates"); // .../node_modules/work-journal/templates
 }
