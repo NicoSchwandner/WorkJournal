@@ -29,11 +29,20 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
 
+      # Cache pnpm store
+      - name: Cache pnpm store
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
       - name: Install Dependencies
         run: pnpm install
 
       - name: Build Packages
-        run: pnpm run build -r
+        run: pnpm -r run build
 
       - name: Create Release Pull Request or Publish
         id: changesets
