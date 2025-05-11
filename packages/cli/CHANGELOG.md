@@ -1,5 +1,11 @@
 # work-journal
 
+## 1.0.5
+
+### Patch Changes
+
+- 0f2228d: Fix template path resolution broken in production builds
+
 ## 1.0.4
 
 ### Patch Changes
