@@ -1,5 +1,11 @@
 # work-journal
 
+## 1.0.4
+
+### Patch Changes
+
+- 34d017d: Fix CI/CD pipeline by supplying the correct token
+
 ## 1.0.3
 
 ### Patch Changes
