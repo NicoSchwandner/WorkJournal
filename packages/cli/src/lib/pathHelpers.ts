@@ -48,8 +48,8 @@ export function packageTemplatesDir(): string {
       const dirOfThisFile = dirname(fileURLToPath(import.meta.url)); // dist/lib
       return join(dirOfThisFile, "..", "..", "templates"); // dist/../.. = package root
     } catch (e) {
-      // Final fallback: two levels up from the compiled file
-      return join(__dirname, "..", "..", "templates");
+      // Final fallback: one level up from the compiled file to find templates directory
+      return join(__dirname, "..", "templates");
     }
   }
 
