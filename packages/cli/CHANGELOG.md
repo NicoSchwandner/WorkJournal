@@ -1,5 +1,11 @@
 # work-journal
 
+## 1.0.3
+
+### Patch Changes
+
+- 7182182: Fix template copying when running the init command from an npm installation
+
 ## 1.0.2
 
 ### Patch Changes
