@@ -11,9 +11,9 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
-      contents: write # version PR + tags
+      contents: write
       pull-requests: write
-      packages: write # needed if you ever publish to GH Packages
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -26,20 +26,26 @@ jobs:
       - name: Set up Node 20 + pnpm cache
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: 20
           cache: pnpm
-          registry-url: "https://registry.npmjs.org/"
           cache-dependency-path: "**/pnpm-lock.yaml"
 
-      - run: pnpm install --frozen-lockfile # install once for all steps
+      - run: pnpm install --frozen-lockfile
 
       - name: Build CLI + copy templates
         run: pnpm -r run build
 
       - name: Release with Changesets
+        id: changesets
         uses: changesets/action@v1
         with:
           publish: pnpm exec changeset publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Show published packages
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          echo "🎉 Published:"
+          echo '${{ steps.changesets.outputs.publishedPackages }}'
