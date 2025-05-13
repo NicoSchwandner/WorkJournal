@@ -1,5 +1,13 @@
 # work-journal
 
+## 1.1.0
+
+### Minor Changes
+
+- 58d4454: 💥 Breaking: Renamed vacationStartDay to holidayCutoffDay with input validation
+  Added validation for config keys - only accepted key is now `holidayCutoffDay`
+  Added centralized config utility with memoization for performance
+
 ## 1.0.5
 
 ### Patch Changes
