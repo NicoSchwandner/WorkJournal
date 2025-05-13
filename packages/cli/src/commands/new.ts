@@ -6,6 +6,7 @@ import { spawn } from "child_process";
 import { loadTemplate } from "../lib/templateLoader";
 import { render, hasUnreplaced } from "../lib/placeholder";
 import { isFriday, isEndOfMonthFriday, isEndOfQuarterFriday, isVacationFriday, weekNum } from "../lib/dateLogic";
+import { getConfig } from "../lib/config";
 
 interface NewCommandArgs {
   offset: number;
@@ -19,8 +20,11 @@ interface NewCommandArgs {
  * @returns The template filename to use, or null if no special template
  */
 function determineTemplate(targetDate: Date): string {
+  // Get the configured holiday cutoff day or use default of 23
+  const cutoff = getConfig("holidayCutoffDay") ?? 23;
+
   // Check from highest to lowest priority
-  if (isVacationFriday(targetDate, 17)) {
+  if (isVacationFriday(targetDate, cutoff)) {
     return "yearly_template.md";
   } else if (isEndOfQuarterFriday(targetDate)) {
     return "quarterly_template.md";

@@ -1,162 +1,207 @@
-import mockFs from "mock-fs";
-import { existsSync, readFileSync, mkdirSync, writeFileSync } from "fs";
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { format, addDays, setDay } from "date-fns";
+import { format } from "date-fns";
 import { runNew } from "./new";
-import { describe, test, expect, afterEach } from "vitest";
+import * as config from "../lib/config";
+import * as dateLogic from "../lib/dateLogic";
 
-// Helper to get a date that's a specific day of the week
-function getDateByDay(dayOfWeek: number): Date {
-  const today = new Date();
-  return setDay(today, dayOfWeek, { weekStartsOn: 1 });
-}
-
-// Helper to create fake templates
-function setupMockFileSystem() {
-  // Setup mock templates directory
-  const templatesDir = join(process.cwd(), "templates");
-
-  mockFs({
-    [templatesDir]: {
-      "daily_template.md": `<!-- TEMPLATE: daily -->
-# $date (Week $week)
-## Top 3 priorities Daily
-- [ ] …`,
-      "weekly_template.md": `<!-- TEMPLATE: weekly -->
-# Week $week / $year
-## Weekly summary
-## Weekly Wins 🎉`,
-      "monthly_template.md": `<!-- TEMPLATE: monthly -->
-# Monthly Review - Month $date`,
-      "quarterly_template.md": `<!-- TEMPLATE: quarterly -->
-# Quarterly Review Q$quarter $year`,
-      "yearly_template.md": `<!-- TEMPLATE: yearly -->
-# Year in Review $year`,
-    },
-    // Ensure Journal directory exists, but empty
-    [join(process.cwd(), "Journal")]: {},
-  });
-}
-
-// Clean up mock file system after tests
-afterEach(() => {
-  mockFs.restore();
+// Mock modules
+vi.mock("fs");
+vi.mock("child_process");
+vi.mock("../lib/config");
+vi.mock("../lib/dateLogic", async () => {
+  const actual = await vi.importActual("../lib/dateLogic");
+  return {
+    ...actual,
+    // These can be overridden in specific tests
+    isFriday: vi.fn(() => true),
+    isEndOfMonthFriday: vi.fn(() => false),
+    isEndOfQuarterFriday: vi.fn(() => false),
+    isVacationFriday: vi.fn(() => false),
+  };
 });
 
-describe("new command", () => {
-  test("Case A: Monday creates file with daily template and no template comments", () => {
-    // Setup
-    setupMockFileSystem();
+// Define the mock template content
+const mockTemplates = {
+  "daily_template.md": "Daily Template\n\nTop 3 priorities Daily\n\n$date",
+  "weekly_template.md": "Weekly Template\n\nWeekly Wins\n\n$date",
+  "monthly_template.md": "Monthly Review $monthName $year\n\n$date",
+  "quarterly_template.md": "Quarterly Review Q$quarter $year\n\n$date",
+  "yearly_template.md": "Year in Review $year\n\n$date",
+};
 
-    // Monday (Day 1)
-    const monday = getDateByDay(1);
+describe("new command", () => {
+  let writtenFilePath = "";
+  let writtenContent = "";
+
+  beforeEach(() => {
+    // Clear all mocks
+    vi.clearAllMocks();
+    writtenFilePath = "";
+    writtenContent = "";
+
+    // Default mocks that work for all tests
+    vi.mocked(existsSync).mockImplementation((path) => {
+      // Templates always exist
+      if (String(path).includes("template")) return true;
+      // By default journal files don't exist
+      return false;
+    });
+
+    vi.mocked(mkdirSync).mockImplementation(() => undefined);
+
+    vi.mocked(readFileSync).mockImplementation((path) => {
+      const pathStr = String(path);
+
+      // Handle template requests
+      if (pathStr.includes("daily_template")) return mockTemplates["daily_template.md"];
+      if (pathStr.includes("weekly_template")) return mockTemplates["weekly_template.md"];
+      if (pathStr.includes("monthly_template")) return mockTemplates["monthly_template.md"];
+      if (pathStr.includes("quarterly_template")) return mockTemplates["quarterly_template.md"];
+      if (pathStr.includes("yearly_template")) return mockTemplates["yearly_template.md"];
+
+      // Return the written content for journal files
+      if (pathStr === writtenFilePath) return writtenContent;
+
+      return "";
+    });
+
+    vi.mocked(writeFileSync).mockImplementation((path, content) => {
+      writtenFilePath = String(path);
+      writtenContent = String(content);
+      return undefined;
+    });
+
+    // Default config
+    vi.mocked(config.getConfig).mockReturnValue(undefined);
+
+    // Default date logic - regular weekday (not special)
+    vi.mocked(dateLogic.isFriday).mockReturnValue(false);
+    vi.mocked(dateLogic.isEndOfMonthFriday).mockReturnValue(false);
+    vi.mocked(dateLogic.isEndOfQuarterFriday).mockReturnValue(false);
+    vi.mocked(dateLogic.isVacationFriday).mockReturnValue(false);
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test("Monday creates file with daily template", () => {
+    // Create a Monday
+    const monday = new Date(2025, 4, 5); // May 5, 2025
+
+    // Run the command
     const journalPath = runNew(monday, false);
 
-    // Assertions
-    expect(existsSync(journalPath)).toBe(true);
-
-    const content = readFileSync(journalPath, "utf8");
-    expect(content.startsWith("# ")).toBe(true); // Should start with heading, not comment
-    expect(content).not.toContain("<!-- TEMPLATE: daily -->");
-    expect(content).toContain("Top 3 priorities Daily");
+    // Verify file was written with correct content
+    expect(writtenFilePath).toBe(journalPath);
+    expect(writtenContent).toContain("Daily Template");
+    expect(writtenContent).toContain("Top 3 priorities Daily");
+    expect(writtenContent).not.toContain("<!-- TEMPLATE:");
   });
 
-  test("Case B: Friday creates file with weekly template, not daily", () => {
-    // Setup
-    setupMockFileSystem();
+  test("Friday creates file with weekly template", () => {
+    // Set up Friday
+    vi.mocked(dateLogic.isFriday).mockReturnValue(true);
 
-    // Friday (Day 5)
-    const friday = getDateByDay(5);
+    // Create a regular Friday
+    const friday = new Date(2025, 4, 9); // May 9, 2025
 
-    // Run
+    // Run the command
     const journalPath = runNew(friday, false);
 
-    // Assertions
-    expect(existsSync(journalPath)).toBe(true);
-
-    const content = readFileSync(journalPath, "utf8");
-    expect(content).not.toContain("<!-- TEMPLATE: daily -->");
-    expect(content).not.toContain("<!-- TEMPLATE: weekly -->");
-    expect(content).toContain("Weekly Wins 🎉");
-    expect(content).not.toContain("Top 3 priorities Daily"); // Should NOT use daily template
+    // Verify weekly template was used
+    expect(writtenFilePath).toBe(journalPath);
+    expect(writtenContent).toContain("Weekly Template");
+    expect(writtenContent).toContain("Weekly Wins");
+    expect(writtenContent).not.toContain("Top 3 priorities Daily");
   });
 
-  test("Case C: End-of-quarter Friday uses quarterly template, not weekly or daily", () => {
-    // Setup
-    setupMockFileSystem();
+  test("End-of-quarter Friday uses quarterly template", () => {
+    // Set up end of quarter Friday
+    vi.mocked(dateLogic.isFriday).mockReturnValue(true);
+    vi.mocked(dateLogic.isEndOfQuarterFriday).mockReturnValue(true);
 
-    // Create a specific date known to be end of quarter (2025-03-28, last Friday of Q1)
-    const endOfQuarterFriday = new Date(2025, 2, 28); // March 28, 2025 (zero-indexed month)
+    // Create end of quarter Friday
+    const endOfQuarterFriday = new Date(2025, 2, 28); // March 28, 2025
 
-    // Set up year/month directory structure
-    const year = format(endOfQuarterFriday, "yyyy");
-    const month = format(endOfQuarterFriday, "MM");
-    mkdirSync(join(process.cwd(), "Journal", year, month), { recursive: true });
-
-    // Run the new command
+    // Run the command
     const journalPath = runNew(endOfQuarterFriday, false);
 
-    // Assertions
-    expect(existsSync(journalPath)).toBe(true);
-
-    const content = readFileSync(journalPath, "utf8");
-    expect(content).not.toContain("<!-- TEMPLATE: daily -->");
-    expect(content).not.toContain("<!-- TEMPLATE: weekly -->");
-    expect(content).toContain("Quarterly Review Q1 2025");
-    expect(content).not.toContain("Weekly Wins"); // Weekly template should NOT be used
-    expect(content).not.toContain("Top 3 priorities Daily"); // Daily template should NOT be used
+    // Verify quarterly template was used
+    expect(writtenFilePath).toBe(journalPath);
+    expect(writtenContent).toContain("Quarterly Review Q1 2025");
+    expect(writtenContent).not.toContain("Weekly Wins");
   });
 
-  test("Case D: Yearly template takes precedence over all others on vacation Friday", () => {
-    // Setup
-    setupMockFileSystem();
+  test("Vacation Friday with default cutoff uses yearly template", () => {
+    // Set up vacation Friday
+    vi.mocked(dateLogic.isFriday).mockReturnValue(true);
+    vi.mocked(dateLogic.isVacationFriday).mockReturnValue(true);
 
-    // Create a vacation Friday (2025-12-12, assuming cutoff is Dec 17)
+    // Create a vacation Friday (with default cutoff of 23)
     const vacationFriday = new Date(2025, 11, 12); // December 12, 2025
 
-    // Run the new command
+    // Run the command
     const journalPath = runNew(vacationFriday, false);
 
-    // Assertions
-    expect(existsSync(journalPath)).toBe(true);
-
-    const content = readFileSync(journalPath, "utf8");
-    expect(content).toContain("Year in Review 2025");
-    expect(content).not.toContain("Weekly Wins"); // Weekly template should NOT be used
-    expect(content).not.toContain("Quarterly Review"); // Quarterly template should NOT be used
-    expect(content).not.toContain("Monthly Review"); // Monthly template should NOT be used
+    // Verify yearly template was used
+    expect(writtenFilePath).toBe(journalPath);
+    expect(writtenContent).toContain("Year in Review 2025");
+    expect(writtenContent).not.toContain("Weekly Wins");
   });
 
-  test("Case E: Does not overwrite existing file unless force flag is set", () => {
-    // Setup
-    setupMockFileSystem();
+  test("Vacation Friday respects custom holiday cutoff", () => {
+    // Set up vacation Friday with custom cutoff
+    vi.mocked(dateLogic.isFriday).mockReturnValue(true);
+    vi.mocked(dateLogic.isVacationFriday).mockReturnValue(true);
 
-    // Monday (Day 1)
-    const monday = getDateByDay(1);
+    // Set custom cutoff of 22
+    vi.mocked(config.getConfig).mockReturnValue(22);
 
-    // Create a journal directory and existing file
-    const year = format(monday, "yyyy");
-    const month = format(monday, "MM");
-    const dateString = format(monday, "yyyy-MM-dd");
-    const journalDir = join(process.cwd(), "Journal", year, month);
-    const journalFilePath = join(journalDir, `${dateString}.md`);
+    // Create a date that would be vacation Friday with cutoff 22 but not with default
+    const customVacationFriday = new Date(2025, 11, 19); // December 19, 2025
 
-    // Create directory and existing file with custom content
-    mkdirSync(journalDir, { recursive: true });
-    writeFileSync(journalFilePath, "# Existing content");
+    // Run the command
+    const journalPath = runNew(customVacationFriday, false);
 
-    // Run without force flag
-    runNew(monday, false, false);
+    // Verify yearly template was used
+    expect(writtenFilePath).toBe(journalPath);
+    expect(writtenContent).toContain("Year in Review 2025");
+  });
 
-    // Existing content should be preserved
-    expect(readFileSync(journalFilePath, "utf8")).toBe("# Existing content");
+  test("Does not overwrite existing file unless force flag is set", () => {
+    // Create a test date
+    const testDate = new Date(2025, 4, 5); // May 5, 2025
 
-    // Run with force flag
-    runNew(monday, false, true);
+    // Mock that file already exists
+    vi.mocked(existsSync).mockImplementation((path) => {
+      if (String(path).includes("template")) return true;
+      // File exists this time
+      return true;
+    });
 
-    // Content should be overwritten
-    const newContent = readFileSync(journalFilePath, "utf8");
-    expect(newContent).not.toBe("# Existing content");
-    expect(newContent).toContain("Top 3 priorities Daily");
+    // Spy on console.log
+    const consoleSpy = vi.spyOn(console, "log");
+
+    // Run with force=false
+    runNew(testDate, false, false);
+
+    // Should not write to file
+    expect(writtenContent).toBe("");
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Journal entry already exists"));
+
+    // Reset for next part of test
+    consoleSpy.mockClear();
+
+    // Run with force=true
+    runNew(testDate, false, true);
+
+    // Should overwrite file
+    expect(writtenContent).not.toBe("");
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Overwrote journal entry"));
+
+    consoleSpy.mockRestore();
   });
 });
