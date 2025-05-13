@@ -1,6 +1,6 @@
 {
   "name": "work-journal",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Work Journal CLI",
   "main": "dist/index.js",
   "bin": {
