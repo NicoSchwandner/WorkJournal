@@ -92,7 +92,7 @@ Hit <kbd>⌘⇧B</kbd> (or your build key) and the file opens ready for typing.
 | ✅  | **Template engine**              | Daily, weekly, monthly, quarterly, yearly                      |
 | ✅  | **Three-level lookup**           | `./templates/` → `~/.config/work-journal/` → packaged defaults |
 | ✅  | **Cross-platform**               | Works on macOS, Linux, Windows (no Bash)                       |
-| ✅  | **Configurable vacation cutoff** | `work-journal config set vacationStartDay 17`                  |
+| ✅  | **Configurable holiday cutoff**  | `work-journal config set holidayCutoffDay 23`                  |
 | 🏗   | **Binary release**               | Planned (skip for v1)                                          |
 | 🏗   | **Custom placeholder variables** | Road-mapped                                                    |
 
@@ -109,9 +109,9 @@ Hit <kbd>⌘⇧B</kbd> (or your build key) and the file opens ready for typing.
 ## Configuration Examples
 
 ```bash
-# Set last Friday before X-mas break to Dec 20 instead of 17
-npx work-journal config set vacationStartDay 20
-npx work-journal config get vacationStartDay
+# Set last Friday before X-mas break to Dec 20 instead of 23
+npx work-journal config set holidayCutoffDay 20
+npx work-journal config get holidayCutoffDay
 # 20
 ```
 

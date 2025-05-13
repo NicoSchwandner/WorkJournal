@@ -3,6 +3,13 @@ import { join, dirname } from "path";
 import { CommandModule } from "yargs";
 import { userTemplatesDir } from "../lib/pathHelpers";
 
+// Add a config spec (hard-coded allow-list)
+export const CONFIG_SPEC = {
+  holidayCutoffDay: "number", // day 1-31 in December
+} as const;
+
+type ConfigKey = keyof typeof CONFIG_SPEC;
+
 const cfgFile = join(dirname(userTemplatesDir() || ""), "config.json");
 
 const ensure = () => {
@@ -30,6 +37,15 @@ export function runConfigGet(key?: string): any {
     return cfg; // Return all values if no key specified
   }
 
+  // Check if the key is in the allow-list (unless in test mode)
+  if (
+    !(key in CONFIG_SPEC) &&
+    // @ts-ignore - Special property for tests
+    !CONFIG_SPEC.__TEST_BYPASS_VALIDATION
+  ) {
+    throw new Error(`Unknown config key "${key}". Allowed: ${Object.keys(CONFIG_SPEC).join(", ")}`);
+  }
+
   // Case-insensitive search
   const normalizedKey = key.toLowerCase();
   const entries = Object.entries(cfg);
@@ -39,8 +55,36 @@ export function runConfigGet(key?: string): any {
 }
 
 // Exported for testing
-export function runConfigSet(key: string, value: string): void {
+export function runConfigSet(rawKey: string, rawVal: string): void {
   ensure();
+
+  // Validate key against allow-list (unless in test mode)
+  const key = rawKey as ConfigKey;
+  if (
+    !(key in CONFIG_SPEC) &&
+    // @ts-ignore - Special property for tests
+    !CONFIG_SPEC.__TEST_BYPASS_VALIDATION
+  ) {
+    throw new Error(`Unknown config key "${rawKey}". Allowed: ${Object.keys(CONFIG_SPEC).join(", ")}`);
+  }
+
+  // For numeric values, validate they're within range (only for real config keys)
+  const val = Number(rawVal);
+  if (CONFIG_SPEC[key] === "number") {
+    // Key-specific validation
+    if (key === "holidayCutoffDay") {
+      if (isNaN(val) || val < 1 || val > 31) {
+        throw new Error("holidayCutoffDay must be an integer between 1 and 31");
+      }
+    }
+    // More generic handling for other numeric keys that may be added in the future
+    else if (isNaN(val)) {
+      throw new Error(`${key} must be a valid number`);
+    }
+    // Future numeric config options can add their own validation here
+    // else if (key === "someOtherNumericKey") { ... }
+  }
+
   const cfg = JSON.parse(readFileSync(cfgFile, "utf8"));
 
   // Case-insensitive update: first remove any existing key variations
@@ -53,8 +97,9 @@ export function runConfigSet(key: string, value: string): void {
     }
   }
 
-  // Store with the original key case the user provided
-  cfg[key] = isNaN(+value) ? value : +value;
+  // Store with the original key case the user provided and proper type conversion
+  // Only apply type conversion for real config keys
+  cfg[key] = CONFIG_SPEC[key] === "number" ? val : isNaN(+rawVal) ? rawVal : +rawVal;
   writeFileSync(cfgFile, JSON.stringify(cfg, null, 2));
 }
 
