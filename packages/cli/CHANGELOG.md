@@ -1,5 +1,11 @@
 # work-journal
 
+## 1.2.0
+
+### Minor Changes
+
+- 39572ad: Fix publishing pipeline by updating the checkout action in GitHub workflow
+
 ## 1.1.0
 
 ### Minor Changes
