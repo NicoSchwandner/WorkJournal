@@ -40,8 +40,10 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: pnpm exec changeset publish
+          commit: "chore: update versions"
+          title: "release"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Show published packages
