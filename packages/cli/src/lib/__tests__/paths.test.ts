@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import path from "node:path";
 import { resolveScope } from "../paths";
 import { projectTemplatesDir, userTemplatesDir } from "../pathHelpers";
 
@@ -19,8 +20,8 @@ describe("resolveScope", () => {
     const scope = resolveScope(true);
 
     expect(scope).toEqual({
-      templates: "/home/user/.config/work-journal/templates/templates",
-      configFile: "/home/user/.config/work-journal/config.json",
+      templates: path.join("/home/user/.config/work-journal/templates", "templates"),
+      configFile: path.join("/home/user/.config/work-journal", "config.json"),
     });
   });
 
@@ -28,8 +29,8 @@ describe("resolveScope", () => {
     const scope = resolveScope(false);
 
     expect(scope).toEqual({
-      templates: "/project/templates",
-      configFile: "/project/work-journal.json",
+      templates: path.join("/project", "templates"),
+      configFile: path.join("/project", "work-journal.json"),
     });
   });
 
@@ -41,8 +42,8 @@ describe("resolveScope", () => {
     const scope = resolveScope(false);
 
     expect(scope).toEqual({
-      templates: "/fallback/templates",
-      configFile: "/fallback/work-journal.json",
+      templates: path.join("/fallback", "templates"),
+      configFile: path.join("/fallback", "work-journal.json"),
     });
 
     process.cwd = originalCwd;
