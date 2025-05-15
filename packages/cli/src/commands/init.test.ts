@@ -1,14 +1,29 @@
-import { describe, it, beforeEach, afterEach, expect } from "vitest";
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 import mock from "mock-fs";
 import { runInit } from "./init";
+import { resolveScope } from "../lib/paths";
+
+// Mock the resolveScope function
+vi.mock("../lib/paths", () => ({
+  resolveScope: vi.fn(),
+}));
 
 describe("work-journal init command", () => {
   const mockSourceTemplatesPath = "/mock/source-templates";
   const mockDestTemplatesPath = "/mock/dest-templates";
+  const mockUserTemplatesPath = "/mock/user-templates";
 
   beforeEach(() => {
+    vi.resetAllMocks();
+
+    // Mock resolveScope to return our test paths
+    vi.mocked(resolveScope).mockImplementation((user: boolean) => ({
+      templates: user ? mockUserTemplatesPath : mockDestTemplatesPath,
+      configFile: user ? "/mock/user-config.json" : "/mock/project-config.json",
+    }));
+
     mock({
       [mockSourceTemplatesPath]: {
         "daily.md": "Daily template content",
@@ -21,6 +36,7 @@ describe("work-journal init command", () => {
 
   afterEach(() => {
     mock.restore();
+    vi.resetAllMocks();
   });
 
   it("should create templates directory and copy files if it does not exist", () => {
@@ -76,5 +92,17 @@ describe("work-journal init command", () => {
     expect(() => runInit(false, mockDestTemplatesPath, nonExistentSourcePath)).toThrowError(
       `Source templates directory not found: ${nonExistentSourcePath}`
     );
+  });
+
+  it("should use user templates directory when --user flag is true", () => {
+    expect(existsSync(mockUserTemplatesPath)).toBe(false);
+
+    runInit(false, mockUserTemplatesPath, mockSourceTemplatesPath);
+
+    expect(existsSync(mockUserTemplatesPath)).toBe(true);
+    expect(existsSync(join(mockUserTemplatesPath, "daily.md"))).toBe(true);
+    expect(readFileSync(join(mockUserTemplatesPath, "daily.md"), "utf8")).toBe("Daily template content");
+    expect(existsSync(join(mockUserTemplatesPath, "weekly.md"))).toBe(true);
+    expect(readFileSync(join(mockUserTemplatesPath, "weekly.md"), "utf8")).toBe("Weekly template content");
   });
 });

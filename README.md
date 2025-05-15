@@ -113,6 +113,11 @@ Hit <kbd>⌘⇧B</kbd> (or your build key) and the file opens ready for typing.
 npx work-journal config set holidayCutoffDay 20
 npx work-journal config get holidayCutoffDay
 # 20
+
+# Set in project config (default)
+npx work-journal config set holidayCutoffDay 22
+# Set in user config
+npx work-journal config set holidayCutoffDay 22 --user
 ```
 
 <a id="repo-layout"></a>
@@ -142,9 +147,11 @@ work-journal/
 work-journal <command>
 
 Commands:
-  work-journal init    seed templates in ./templates
-  work-journal new     create or append to today's journal entry
-  work-journal config  Manage configuration
+  work-journal init      seed templates in ./templates
+                         --user: copy to user config dir instead of project
+  work-journal new       create or append to today's journal entry
+  work-journal config    Manage configuration
+                         set --user: save to user config instead of project
 
 Options:
   --version  Show version number                                       [boolean]

@@ -44,7 +44,7 @@ Create a changeset in the following scenarios:
    git add .changeset/[your-changeset-file].md
    ```
 
-5. **Make your commit following the commit guidelines** from the [60-commit-after-logical-unit](60-commit-after-logical-unit) rule.
+5. **Make your commit following the commit guidelines** from the [60-commit-after-logical-unit](mdc:60-commit-after-logical-unit) rule.
 
 ## Example Workflow
 
