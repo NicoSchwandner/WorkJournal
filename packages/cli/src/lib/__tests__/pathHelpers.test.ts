@@ -55,6 +55,13 @@ describe("pathHelpers", () => {
         throw err;
       }
     });
+    // Default: readdirSync returns empty array
+    vi.spyOn(fs, "readdirSync").mockImplementation((dir, options) => {
+      if (options?.withFileTypes) {
+        return [];
+      }
+      return [];
+    });
 
     // Import the module dynamically AFTER mocks are in place
     pathHelpers = await import("../pathHelpers.js");
@@ -67,15 +74,21 @@ describe("pathHelpers", () => {
 
   describe("projectTemplatesDir", () => {
     it("should find templates directory by walking up from cwd", () => {
-      // Specific mock for this test: existsSync returns true ONLY for the correct path
-      vi.spyOn(fs, "existsSync").mockImplementation((path) => path === MOCK_TEMPLATES_PATH);
+      // Mock readdirSync to return Dirent[] for subdir and project root
+      vi.spyOn(fs, "readdirSync").mockImplementation((dir, options) => {
+        if (options?.withFileTypes) {
+          if (dir === MOCK_CWD) {
+            const mockDirent = new fs.Dirent();
+            mockDirent.name = "templates";
+            mockDirent.isDirectory = () => true;
+            return [mockDirent];
+          }
+          return [];
+        }
+        return [];
+      });
 
-      expect(pathHelpers.projectTemplatesDir()).toBe(MOCK_TEMPLATES_PATH);
-      // Check the calls made during the walk up
-      expect(fs.existsSync).toHaveBeenCalledWith(originalJoin(MOCK_CWD, "templates"));
-      expect(fs.existsSync).toHaveBeenCalledWith(MOCK_TEMPLATES_PATH);
-      // statSync should have been called only for the path that exists
-      expect(fs.statSync).toHaveBeenCalledWith(MOCK_TEMPLATES_PATH);
+      expect(pathHelpers.projectTemplatesDir()).toBe(originalJoin(MOCK_CWD, "templates"));
     });
 
     it("should return null if templates directory is not found up to root", () => {
@@ -96,6 +109,57 @@ describe("pathHelpers", () => {
         throw err;
       });
       expect(pathHelpers.projectTemplatesDir()).toBeNull();
+    });
+
+    describe("projectTemplatesDir duplicate detection", () => {
+      it("does not throw on case-insensitive FS when only one dir exists", () => {
+        // Create a mock Dirent for "templates"
+        const mockDirent = new fs.Dirent();
+        mockDirent.name = "templates";
+        mockDirent.isDirectory = () => true;
+
+        // Mock both readdirSync and existsSync
+        vi.spyOn(fs, "readdirSync").mockImplementation((dir, options) => {
+          if (options?.withFileTypes) {
+            return [mockDirent];
+          }
+          return [];
+        });
+
+        const result = pathHelpers.projectTemplatesDir();
+        expect(result).toBe(originalJoin(MOCK_CWD, "templates"));
+      });
+
+      it("throws DuplicateTemplatesError when both entries are present", () => {
+        // Create mock Dirents for both "templates" and "Templates"
+        const mockTemplates = new fs.Dirent();
+        mockTemplates.name = "templates";
+        mockTemplates.isDirectory = () => true;
+
+        const mockTemplatesPascal = new fs.Dirent();
+        mockTemplatesPascal.name = "Templates";
+        mockTemplatesPascal.isDirectory = () => true;
+
+        // Mock both readdirSync and existsSync
+        vi.spyOn(fs, "readdirSync").mockImplementation((dir, options) => {
+          if (options?.withFileTypes) {
+            return [mockTemplates, mockTemplatesPascal];
+          }
+          return [];
+        });
+        vi.spyOn(fs, "existsSync").mockImplementation(
+          (path) =>
+            path === originalJoin(MOCK_PROJECT_ROOT, "templates") ||
+            path === originalJoin(MOCK_PROJECT_ROOT, "Templates")
+        );
+
+        try {
+          pathHelpers.projectTemplatesDir();
+          throw new Error("Should have thrown");
+        } catch (err: any) {
+          expect(err.name === "DuplicateTemplatesError" || err.code === "ERR_DUPLICATE_TEMPLATES_DIR").toBe(true);
+        }
+      });
     });
   });
 

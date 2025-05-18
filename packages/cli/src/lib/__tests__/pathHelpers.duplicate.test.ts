@@ -34,6 +34,26 @@ describe("duplicate templates folder handling", () => {
   });
 
   function mockFs({ lower, upper }: { lower?: boolean; upper?: boolean }) {
+    const entries: fs.Dirent[] = [];
+    if (lower) {
+      const lowerEntry = new fs.Dirent();
+      lowerEntry.name = "templates";
+      lowerEntry.isDirectory = () => true;
+      entries.push(lowerEntry);
+    }
+    if (upper) {
+      const upperEntry = new fs.Dirent();
+      upperEntry.name = "Templates";
+      upperEntry.isDirectory = () => true;
+      entries.push(upperEntry);
+    }
+
+    vi.mocked(fs.readdirSync).mockImplementation((dir, options) => {
+      if (options?.withFileTypes) {
+        return entries;
+      }
+      return [];
+    });
     vi.mocked(fs.existsSync).mockImplementation((p) => {
       if (lower && p === join(root, "templates")) return true;
       if (upper && p === join(root, "Templates")) return true;
