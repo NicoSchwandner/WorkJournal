@@ -5,7 +5,18 @@ import * as pathHelpers from "../pathHelpers";
 
 // Mock modules
 vi.mock("fs");
-vi.mock("../pathHelpers");
+vi.mock("../pathHelpers", async () => {
+  // pull in the actual implementation first
+  const actual = await vi.importActual<typeof import("../pathHelpers")>("../pathHelpers");
+  return {
+    // spread the real exports so classes stay real
+    ...actual,
+    // then overwrite only the bits you really need to fake
+    projectTemplatesDir: vi.fn(),
+    userTemplatesDir: vi.fn(),
+    packageTemplatesDir: vi.fn(),
+  };
+});
 
 // Hold the dynamically imported module
 let templateLoader: typeof import("../templateLoader");
@@ -137,9 +148,11 @@ describe("templateLoader", () => {
     // Create a DuplicateTemplatesError instance
     const error = new pathHelpers.DuplicateTemplatesError();
 
-    // Verify error properties
-    expect(error.code).toBe("ERR_DUPLICATE_TEMPLATES_DIR");
-    expect(error.message).toContain("Both 'templates/' and 'Templates/' exist");
-    expect(error.name).toBe("DuplicateTemplatesError");
+    // Verify error properties using Vitest's recommended style
+    expect(error).toHaveProperty("code", "ERR_DUPLICATE_TEMPLATES_DIR");
+    expect(error).toMatchObject({
+      name: "DuplicateTemplatesError",
+      message: expect.stringContaining("Both 'templates/' and 'Templates/' exist"),
+    });
   });
 });
