@@ -6,6 +6,7 @@ import { runNew } from "./new";
 import * as config from "../lib/config";
 import * as dateLogic from "../lib/dateLogic";
 import * as templateLoader from "../lib/templateLoader";
+import { DuplicateTemplatesError } from "../lib/pathHelpers";
 
 // Mock modules
 vi.mock("fs");
@@ -235,9 +236,7 @@ describe("new command", () => {
   test("Handles duplicate templates error", () => {
     // Mock templateLoader to throw the duplicate templates error
     vi.mocked(templateLoader.loadTemplate).mockImplementation(() => {
-      throw new Error(
-        "ERR_DUPLICATE_TEMPLATES_DIR: Both 'templates/' and 'Templates/' exist. Please keep exactly one (lower-case is recommended)."
-      );
+      throw new DuplicateTemplatesError();
     });
 
     // Create a test date

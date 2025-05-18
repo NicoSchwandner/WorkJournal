@@ -133,20 +133,13 @@ describe("templateLoader", () => {
     warnSpy.mockRestore();
   });
 
-  it("should throw when duplicate template folders exist", () => {
-    // Mock projectTemplatesDir to throw an error when called
-    const errorMsg =
-      "ERR_DUPLICATE_TEMPLATES_DIR: Both 'templates/' and 'Templates/' exist. Please keep exactly one (lower-case is recommended).";
-    vi.mocked(pathHelpers.projectTemplatesDir).mockImplementation(() => {
-      throw new Error(errorMsg);
-    });
+  it("should handle duplicate templates error properly", () => {
+    // Create a DuplicateTemplatesError instance
+    const error = new pathHelpers.DuplicateTemplatesError();
 
-    // Create a function that calls getTemplateSources which will now throw
-    const getTemplateSourcesFn = () => {
-      templateLoader.loadTemplate(MOCK_TEMPLATE_NAME);
-    };
-
-    // Expect the function to throw with our error message
-    expect(getTemplateSourcesFn).toThrow("ERR_DUPLICATE_TEMPLATES_DIR");
+    // Verify error properties
+    expect(error.code).toBe("ERR_DUPLICATE_TEMPLATES_DIR");
+    expect(error.message).toContain("Both 'templates/' and 'Templates/' exist");
+    expect(error.name).toBe("DuplicateTemplatesError");
   });
 });

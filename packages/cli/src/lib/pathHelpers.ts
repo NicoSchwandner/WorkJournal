@@ -3,6 +3,16 @@ import { join, dirname, parse } from "path";
 import { existsSync, statSync } from "fs";
 import { fileURLToPath } from "url";
 
+export class DuplicateTemplatesError extends Error {
+  code = "ERR_DUPLICATE_TEMPLATES_DIR";
+  constructor() {
+    super(
+      "ERR_DUPLICATE_TEMPLATES_DIR: Both 'templates/' and 'Templates/' exist. Please keep exactly one (lower-case is recommended)."
+    );
+    this.name = "DuplicateTemplatesError";
+  }
+}
+
 export function projectTemplatesDir(): string | null {
   let dir = process.cwd();
   const root = parse(dir).root; // Gets "C:\", "D:\", or "/" depending on platform
@@ -19,10 +29,7 @@ export function projectTemplatesDir(): string | null {
     const pascalCaseExists = existsSync(pascalCasePath) && statSync(pascalCasePath).isDirectory();
 
     if (lowerCaseExists && pascalCaseExists) {
-      const errorMsg =
-        "ERR_DUPLICATE_TEMPLATES_DIR: Both 'templates/' and 'Templates/' exist. Please keep exactly one (lower-case is recommended).";
-      console.error(errorMsg);
-      throw new Error(errorMsg);
+      throw new DuplicateTemplatesError();
     }
 
     if (lowerCaseExists) {
