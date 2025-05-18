@@ -138,12 +138,6 @@ npx work-journal new
 | --------------------------------- | ------------------ | ------------- | ---------------------------------------- |
 | `WORK_JOURNAL_HOLIDAY_CUTOFF_DAY` | `holidayCutoffDay` | `22`          | Day of December to use as holiday cutoff |
 
-This works great in CI pipelines:
-
-```bash
-WORK_JOURNAL_HOLIDAY_CUTOFF_DAY=22 npx work-journal new
-```
-
 <a id="repo-layout"></a>
 
 ## Repository Layout
