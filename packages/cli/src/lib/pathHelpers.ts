@@ -12,9 +12,26 @@ export function projectTemplatesDir(): string | null {
   const MAX_DEPTH = 50;
 
   while (true) {
-    const templatesPath = join(dir, "templates");
-    if (existsSync(templatesPath) && statSync(templatesPath).isDirectory()) {
-      return templatesPath;
+    const lowerCasePath = join(dir, "templates");
+    const pascalCasePath = join(dir, "Templates");
+
+    const lowerCaseExists = existsSync(lowerCasePath) && statSync(lowerCasePath).isDirectory();
+    const pascalCaseExists = existsSync(pascalCasePath) && statSync(pascalCasePath).isDirectory();
+
+    if (lowerCaseExists && pascalCaseExists) {
+      const errorMsg =
+        "ERR_DUPLICATE_TEMPLATES_DIR: Both 'templates/' and 'Templates/' exist. Please keep exactly one (lower-case is recommended).";
+      console.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    if (lowerCaseExists) {
+      return lowerCasePath;
+    }
+
+    if (pascalCaseExists) {
+      console.warn("⚠️  Using non-canonical 'Templates/' folder – consider renaming to 'templates/'.");
+      return pascalCasePath;
     }
 
     // Break if we've reached the root or max depth (as a safety measure)
@@ -23,6 +40,7 @@ export function projectTemplatesDir(): string | null {
     // Use dirname instead of manual join with ".." for better cross-platform support
     dir = dirname(dir);
   }
+
   return null;
 }
 

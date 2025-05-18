@@ -106,6 +106,8 @@ Hit <kbd>⌘⇧B</kbd> (or your build key) and the file opens ready for typing.
 └───────────────┘     └────────────────────────┘     └────────────────────────┘
 ```
 
+Folder name is case-sensitive on Linux. Use lower-case `templates/`.
+
 ## Configuration Examples
 
 ```bash

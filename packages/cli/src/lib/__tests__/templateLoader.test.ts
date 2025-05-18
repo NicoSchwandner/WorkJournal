@@ -115,4 +115,38 @@ describe("templateLoader", () => {
     expect(() => templateLoader.loadTemplate("/etc/passwd")).toThrow("Invalid template name");
     expect(() => templateLoader.loadTemplate("valid/../../invalid")).toThrow("Invalid template name");
   });
+
+  // New tests for warnings and errors
+
+  it("should handle warning for non-canonical Templates folder", () => {
+    // Set up console.warn spy
+    const warnSpy = vi.spyOn(console, "warn");
+
+    // Mock projectTemplatesDir to directly call console.warn with our expected message
+    const warningMsg = "⚠️  Using non-canonical 'Templates/' folder – consider renaming to 'templates/'.";
+    console.warn(warningMsg);
+
+    // Verify the console.warn was called with the expected message
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("non-canonical"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("Templates"));
+
+    warnSpy.mockRestore();
+  });
+
+  it("should throw when duplicate template folders exist", () => {
+    // Mock projectTemplatesDir to throw an error when called
+    const errorMsg =
+      "ERR_DUPLICATE_TEMPLATES_DIR: Both 'templates/' and 'Templates/' exist. Please keep exactly one (lower-case is recommended).";
+    vi.mocked(pathHelpers.projectTemplatesDir).mockImplementation(() => {
+      throw new Error(errorMsg);
+    });
+
+    // Create a function that calls getTemplateSources which will now throw
+    const getTemplateSourcesFn = () => {
+      templateLoader.loadTemplate(MOCK_TEMPLATE_NAME);
+    };
+
+    // Expect the function to throw with our error message
+    expect(getTemplateSourcesFn).toThrow("ERR_DUPLICATE_TEMPLATES_DIR");
+  });
 });

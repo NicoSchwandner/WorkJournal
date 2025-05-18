@@ -87,6 +87,11 @@ export function runNew(targetDate: Date, shouldOpen: boolean, force: boolean = f
       writeFileSync(journalFilePath, renderedTemplate);
       console.log(`${fileExists ? "Overwrote" : "Created"} journal entry: ${journalFilePath}`);
     } catch (error: any) {
+      // Check if this is the duplicate templates error
+      if (error.message.includes("ERR_DUPLICATE_TEMPLATES_DIR")) {
+        console.error("Error: " + error.message);
+        process.exit(1);
+      }
       console.error(`Error ${fileExists ? "overwriting" : "creating"} journal file: ${error.message}`);
       process.exit(1);
     }
