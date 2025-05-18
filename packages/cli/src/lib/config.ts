@@ -5,6 +5,19 @@ import { resolveScope } from "./paths";
 
 type ConfigKey = keyof typeof CONFIG_SPEC;
 
+/* -------------------------------------------------------------
+ * Helpers
+ * ----------------------------------------------------------- */
+/** Identifier used in `sources` array when overrides came from the environment. */
+const ENV_SOURCE = "ENV" as const;
+
+/** Validate + convert a raw string coming from CLI / env into its final type. */
+function validateAndConvertConfigValue(key: ConfigKey, raw: string): unknown {
+  // Re-use the strong validation that already lives in runConfigSet
+  runConfigSet("__env__", key, raw, true /* skipWrite */);
+  return CONFIG_SPEC[key] === "number" ? +raw : raw;
+}
+
 export function getConfig(key: ConfigKey) {
   const { merged } = runConfigGet(key);
   return merged;
@@ -30,6 +43,28 @@ function readConfigFile(path: string): any {
   return {};
 }
 
+/* -------------------------------------------------------------
+ * Environment-variable overrides  (WORK_JOURNAL_FOO_BAR=…)
+ * ----------------------------------------------------------- */
+function loadEnvOverrides(): Record<string, unknown> {
+  const overrides: Record<string, unknown> = {};
+  // filter out non-public keys that might be injected in tests (e.g. __TEST_BYPASS_VALIDATION)
+  const cfgKeys = Object.keys(CONFIG_SPEC).filter((k) => !k.startsWith("__")) as ConfigKey[];
+
+  for (const key of cfgKeys) {
+    const envKey = `WORK_JOURNAL_${key.replace(/([a-z])([A-Z])/g, "$1_$2").toUpperCase()}`;
+    const raw = process.env[envKey];
+    if (raw === undefined) continue;
+
+    try {
+      overrides[key] = validateAndConvertConfigValue(key, raw);
+    } catch (e: any) {
+      throw new Error(`${envKey}: ${e.message}`);
+    }
+  }
+  return overrides;
+}
+
 // Exported for testing
 export function runConfigGet(key?: string): { merged: any; sources: string[] } {
   const sources: string[] = [];
@@ -46,8 +81,12 @@ export function runConfigGet(key?: string): { merged: any; sources: string[] } {
   if (existsSync(userConfig)) sources.push(userConfig);
   if (existsSync(projectConfig)) sources.push(projectConfig);
 
-  // Shallow merge, with project taking precedence
-  const merged = { ...userCfg, ...projectCfg };
+  // Load environment variable overrides
+  const envCfg = loadEnvOverrides();
+  if (Object.keys(envCfg).length > 0) sources.push(ENV_SOURCE);
+
+  // Shallow merge, with env taking precedence over project, which takes precedence over user
+  const merged = { ...userCfg, ...projectCfg, ...envCfg };
 
   if (!key) {
     return { merged, sources }; // Return all values if no key specified
@@ -74,8 +113,10 @@ export function runConfigGet(key?: string): { merged: any; sources: string[] } {
 }
 
 // Exported for testing
-export function runConfigSet(cfgPath: string, rawKey: string, rawVal: string): void {
-  ensure(cfgPath);
+export function runConfigSet(cfgPath: string, rawKey: string, rawVal: string, skipWrite = false): void {
+  if (!skipWrite) {
+    ensure(cfgPath);
+  }
 
   // Validate key against allow-list (unless in test mode)
   const key = rawKey as ConfigKey;
@@ -101,6 +142,8 @@ export function runConfigSet(cfgPath: string, rawKey: string, rawVal: string): v
       throw new Error(`${key} must be a valid number`);
     }
   }
+
+  if (skipWrite) return;
 
   const cfg = readConfigFile(cfgPath);
 
