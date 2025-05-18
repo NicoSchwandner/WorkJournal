@@ -229,11 +229,6 @@ describe("config command", () => {
     vi.mocked(readFileSync).mockReturnValue("{}");
 
     runConfigGet("holidayCutoffDay");
-
-    // With the new structure, we don't need to check for directory creation
-    // as it's now managed by resolveScope and the ensure function within lib/config
-    // expect(vi.mocked(mkdirSync)).toHaveBeenCalledWith(dirname(cfgFile), { recursive: true });
-    // expect(vi.mocked(writeFileSync)).toHaveBeenCalled();
   });
 
   test("set should create config file if it doesn't exist", () => {
