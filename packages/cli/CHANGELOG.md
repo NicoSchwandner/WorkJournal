@@ -1,5 +1,12 @@
 # work-journal
 
+## 1.3.0
+
+### Minor Changes
+
+- c4fce8e: Align data residency of init command and config, default to repo, enable saving to user config with --user flag
+- ad19914: Allow setting config values from environment variables
+
 ## 1.2.0
 
 ### Minor Changes
