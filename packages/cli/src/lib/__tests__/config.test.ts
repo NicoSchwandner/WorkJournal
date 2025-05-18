@@ -113,6 +113,67 @@ describe("Config module", () => {
       expect(result.merged).toBe(25); // Gets project value
       expect(result.sources).toEqual([userConfigPath, projectConfigPath]);
     });
+
+    it("should prioritize environment variables over file config", () => {
+      const userConfig = { holidayCutoffDay: 22 };
+      const projectConfig = { holidayCutoffDay: 25 };
+
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readFileSync).mockImplementation((path) => {
+        if (path === userConfigPath) return JSON.stringify(userConfig);
+        if (path === projectConfigPath) return JSON.stringify(projectConfig);
+        return "{}";
+      });
+
+      // Set environment variable
+      process.env.WORK_JOURNAL_HOLIDAY_CUTOFF_DAY = "17";
+
+      try {
+        const result = runConfigGet("holidayCutoffDay");
+
+        expect(result.merged).toBe(17); // Gets env value
+        expect(result.sources).toContain("ENV");
+        expect(result.sources).toEqual([userConfigPath, projectConfigPath, "ENV"]);
+      } finally {
+        // Clean up environment
+        delete process.env.WORK_JOURNAL_HOLIDAY_CUTOFF_DAY;
+      }
+    });
+
+    it("should throw on invalid environment variable values", () => {
+      // Mock file existence
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readFileSync).mockReturnValue("{}");
+
+      // Set invalid environment variable
+      process.env.WORK_JOURNAL_HOLIDAY_CUTOFF_DAY = "not-a-number";
+
+      try {
+        expect(() => {
+          runConfigGet();
+        }).toThrow("WORK_JOURNAL_HOLIDAY_CUTOFF_DAY: holidayCutoffDay must be an integer between 1 and 31");
+      } finally {
+        // Clean up environment
+        delete process.env.WORK_JOURNAL_HOLIDAY_CUTOFF_DAY;
+      }
+    });
+
+    it("should handle camelCase to UPPER_SNAKE transformation correctly", () => {
+      // This test verifies that camelCase config keys are properly transformed to UPPER_SNAKE
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readFileSync).mockReturnValue("{}");
+
+      // Mock a camelCase environment variable
+      process.env.WORK_JOURNAL_HOLIDAY_CUTOFF_DAY = "20";
+
+      try {
+        const result = runConfigGet("holidayCutoffDay");
+        expect(result.merged).toBe(20);
+        expect(result.sources).toContain("ENV");
+      } finally {
+        delete process.env.WORK_JOURNAL_HOLIDAY_CUTOFF_DAY;
+      }
+    });
   });
 
   describe("runConfigSet", () => {
@@ -167,6 +228,17 @@ describe("Config module", () => {
       expect(() => {
         runConfigSet(projectConfigPath, "holidayCutoffDay", "invalid");
       }).toThrow("holidayCutoffDay must be an integer between 1 and 31");
+    });
+
+    it("should not write to file when skipWrite is true", () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readFileSync).mockReturnValue("{}");
+
+      // Call with skipWrite = true
+      runConfigSet(projectConfigPath, "holidayCutoffDay", "25", true);
+
+      // Verify file writing was not called
+      expect(fs.writeFileSync).not.toHaveBeenCalled();
     });
   });
 });

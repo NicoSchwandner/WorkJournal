@@ -30,6 +30,26 @@ function readConfigFile(path: string): any {
   return {};
 }
 
+// Load configuration overrides from environment variables
+function loadEnvOverrides(): Record<string, unknown> {
+  const overrides: Record<string, unknown> = {};
+  for (const key of Object.keys(CONFIG_SPEC) as ConfigKey[]) {
+    const envKey = `WORK_JOURNAL_${key.replace(/([a-z])([A-Z])/g, "$1_$2").toUpperCase()}`;
+    const raw = process.env[envKey];
+    if (raw === undefined) continue;
+
+    // Re-use validation from runConfigSet
+    try {
+      const tmpPath = "__env__"; // Fake path, we never write
+      runConfigSet(tmpPath, key, raw, true); // Validates & converts but skips writing
+      overrides[key] = CONFIG_SPEC[key] === "number" ? +raw : raw;
+    } catch (e: any) {
+      throw new Error(`${envKey}: ${e.message}`);
+    }
+  }
+  return overrides;
+}
+
 // Exported for testing
 export function runConfigGet(key?: string): { merged: any; sources: string[] } {
   const sources: string[] = [];
@@ -46,8 +66,12 @@ export function runConfigGet(key?: string): { merged: any; sources: string[] } {
   if (existsSync(userConfig)) sources.push(userConfig);
   if (existsSync(projectConfig)) sources.push(projectConfig);
 
-  // Shallow merge, with project taking precedence
-  const merged = { ...userCfg, ...projectCfg };
+  // Load environment variable overrides
+  const envCfg = loadEnvOverrides();
+  if (Object.keys(envCfg).length > 0) sources.push("ENV");
+
+  // Shallow merge, with env taking precedence over project, which takes precedence over user
+  const merged = { ...userCfg, ...projectCfg, ...envCfg };
 
   if (!key) {
     return { merged, sources }; // Return all values if no key specified
@@ -74,8 +98,10 @@ export function runConfigGet(key?: string): { merged: any; sources: string[] } {
 }
 
 // Exported for testing
-export function runConfigSet(cfgPath: string, rawKey: string, rawVal: string): void {
-  ensure(cfgPath);
+export function runConfigSet(cfgPath: string, rawKey: string, rawVal: string, skipWrite = false): void {
+  if (!skipWrite) {
+    ensure(cfgPath);
+  }
 
   // Validate key against allow-list (unless in test mode)
   const key = rawKey as ConfigKey;
@@ -101,6 +127,8 @@ export function runConfigSet(cfgPath: string, rawKey: string, rawVal: string): v
       throw new Error(`${key} must be a valid number`);
     }
   }
+
+  if (skipWrite) return;
 
   const cfg = readConfigFile(cfgPath);
 

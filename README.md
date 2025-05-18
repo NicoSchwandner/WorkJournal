@@ -120,6 +120,30 @@ npx work-journal config set holidayCutoffDay 22
 npx work-journal config set holidayCutoffDay 22 --user
 ```
 
+### Environment Variable Configuration
+
+You can override configuration using environment variables with the prefix `WORK_JOURNAL_`. Environment variables take precedence over both project and user configuration files.
+
+```bash
+# Unix/Linux/macOS
+export WORK_JOURNAL_HOLIDAY_CUTOFF_DAY=22
+npx work-journal new
+
+# Windows
+set WORK_JOURNAL_HOLIDAY_CUTOFF_DAY=22
+npx work-journal new
+```
+
+| Environment Variable              | Config Key         | Example Value | Description                              |
+| --------------------------------- | ------------------ | ------------- | ---------------------------------------- |
+| `WORK_JOURNAL_HOLIDAY_CUTOFF_DAY` | `holidayCutoffDay` | `22`          | Day of December to use as holiday cutoff |
+
+This works great in CI pipelines:
+
+```bash
+WORK_JOURNAL_HOLIDAY_CUTOFF_DAY=22 npx work-journal new
+```
+
 <a id="repo-layout"></a>
 
 ## Repository Layout
