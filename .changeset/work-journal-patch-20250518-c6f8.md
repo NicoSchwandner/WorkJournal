@@ -2,4 +2,4 @@
 "work-journal": patch
 ---
 
-🐛 fix: deterministic template lookup when `Templates/` exists
+deterministic template lookup when `Templates/` exists
