@@ -1,5 +1,11 @@
 # work-journal
 
+## 1.3.1
+
+### Patch Changes
+
+- 6860527: deterministic template lookup when `Templates/` exists
+
 ## 1.3.0
 
 ### Minor Changes
