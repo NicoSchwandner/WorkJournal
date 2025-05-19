@@ -12,9 +12,28 @@ export function projectTemplatesDir(): string | null {
   const MAX_DEPTH = 50;
 
   while (true) {
-    const templatesPath = join(dir, "templates");
-    if (existsSync(templatesPath) && statSync(templatesPath).isDirectory()) {
-      return templatesPath;
+    const lowerCaseTemplatesPath = join(dir, "templates");
+    const upperCaseTemplatesPath = join(dir, "Templates");
+
+    const lowerCaseExists = existsSync(lowerCaseTemplatesPath) && statSync(lowerCaseTemplatesPath).isDirectory();
+    const upperCaseExists = existsSync(upperCaseTemplatesPath) && statSync(upperCaseTemplatesPath).isDirectory();
+
+    // If both template directories exist, throw an error
+    if (lowerCaseExists && upperCaseExists) {
+      throw new Error(
+        "ERR_DUPLICATE_TEMPLATES_DIR: Both 'templates/' and 'Templates/' exist. Please keep exactly one (lower-case is recommended)."
+      );
+    }
+
+    // Prefer lowercase "templates" if it exists
+    if (lowerCaseExists) {
+      return lowerCaseTemplatesPath;
+    }
+
+    // Use "Templates" if it exists, but warn about non-canonical naming
+    if (upperCaseExists) {
+      console.warn("⚠️  Using non-canonical 'Templates/' folder – consider renaming to 'templates/'.");
+      return upperCaseTemplatesPath;
     }
 
     // Break if we've reached the root or max depth (as a safety measure)
