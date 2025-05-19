@@ -115,4 +115,62 @@ describe("templateLoader", () => {
     expect(() => templateLoader.loadTemplate("/etc/passwd")).toThrow("Invalid template name");
     expect(() => templateLoader.loadTemplate("valid/../../invalid")).toThrow("Invalid template name");
   });
+
+  // Tests for case-insensitive templates directory
+  describe("Case-sensitive templates directory handling", () => {
+    beforeEach(async () => {
+      vi.resetModules();
+      vi.resetAllMocks();
+
+      // Default mocks for fs
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      vi.mocked(fs.readFileSync).mockReturnValue(MOCK_TEMPLATE_CONTENT);
+    });
+
+    it("should handle projectTemplatesDir returning PascalCase directory", async () => {
+      // Mock return value to a PascalCase Templates directory
+      const MOCK_TEMPLATES_DIR = "/proj/Templates";
+      vi.mocked(pathHelpers.projectTemplatesDir).mockReturnValue(MOCK_TEMPLATES_DIR);
+      vi.mocked(pathHelpers.userTemplatesDir).mockReturnValue(MOCK_USER_DIR);
+      vi.mocked(pathHelpers.packageTemplatesDir).mockReturnValue(MOCK_PACKAGE_DIR);
+
+      // Mock existsSync to return true for the PascalCase template path
+      const projectTemplatePath = path.join(MOCK_TEMPLATES_DIR, MOCK_TEMPLATE_NAME);
+      vi.mocked(fs.existsSync).mockImplementation((p) => p === projectTemplatePath);
+
+      // Re-import the module to use new mocks
+      templateLoader = await import("../templateLoader.js");
+
+      const content = templateLoader.loadTemplate(MOCK_TEMPLATE_NAME);
+
+      expect(content).toBe(MOCK_TEMPLATE_CONTENT);
+      expect(fs.existsSync).toHaveBeenCalledWith(projectTemplatePath);
+      expect(fs.readFileSync).toHaveBeenCalledWith(projectTemplatePath, "utf8");
+    });
+
+    it("should handle errors from projectTemplatesDir due to duplicate directories", async () => {
+      // Mock projectTemplatesDir to throw an error due to duplicate directories
+      vi.mocked(pathHelpers.projectTemplatesDir).mockImplementation(() => {
+        throw new Error("ERR_DUPLICATE_TEMPLATES_DIR");
+      });
+
+      // Mock other directory helpers to work normally
+      vi.mocked(pathHelpers.userTemplatesDir).mockReturnValue(MOCK_USER_DIR);
+      vi.mocked(pathHelpers.packageTemplatesDir).mockReturnValue(MOCK_PACKAGE_DIR);
+
+      // Mock fs to find template in user dir
+      const userPath = path.join(MOCK_USER_DIR, MOCK_TEMPLATE_NAME);
+      vi.mocked(fs.existsSync).mockImplementation((p) => p === userPath);
+
+      // Re-import the module to use new mocks
+      templateLoader = await import("../templateLoader.js");
+
+      // Template loading should still work from user directory
+      const content = templateLoader.loadTemplate(MOCK_TEMPLATE_NAME);
+
+      expect(content).toBe(MOCK_TEMPLATE_CONTENT);
+      expect(fs.existsSync).toHaveBeenCalledWith(userPath);
+      expect(fs.readFileSync).toHaveBeenCalledWith(userPath, "utf8");
+    });
+  });
 });

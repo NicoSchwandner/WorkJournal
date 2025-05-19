@@ -106,6 +106,8 @@ Hit <kbd>⌘⇧B</kbd> (or your build key) and the file opens ready for typing.
 └───────────────┘     └────────────────────────┘     └────────────────────────┘
 ```
 
+> **Note**: The `templates/` folder is case-sensitive. If both `templates/` and `Templates/` exist in the same project, an error will be thrown. If only `Templates/` exists, it will be used with a warning. We recommend using lowercase `templates/` for consistency.
+
 ## Configuration Examples
 
 ```bash

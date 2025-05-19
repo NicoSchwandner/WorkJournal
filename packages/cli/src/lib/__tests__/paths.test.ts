@@ -48,4 +48,15 @@ describe("resolveScope", () => {
 
     process.cwd = originalCwd;
   });
+
+  it("should work with Pascal case Templates directory", () => {
+    vi.mocked(projectTemplatesDir).mockReturnValue("/project/Templates");
+
+    const scope = resolveScope(false);
+
+    expect(scope).toEqual({
+      templates: path.join("/project", "templates"), // Note: paths.ts normalizes to lowercase for consistency
+      configFile: path.join("/project", "work-journal.json"),
+    });
+  });
 });
