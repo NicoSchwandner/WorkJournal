@@ -1,28 +1,83 @@
 import { homedir } from "os";
-import { join, dirname, parse } from "path";
-import { existsSync, statSync } from "fs";
+import { join, dirname, parse, relative } from "path";
+import { existsSync, statSync, readdirSync } from "fs";
 import { fileURLToPath } from "url";
 
+export class DuplicateTemplatesError extends Error {
+  code = "ERR_DUPLICATE_TEMPLATES_DIR";
+  constructor() {
+    super(
+      "ERR_DUPLICATE_TEMPLATES_DIR: Both 'templates/' and 'Templates/' exist. Please keep exactly one (lower-case is recommended)."
+    );
+    this.name = "DuplicateTemplatesError";
+    Object.setPrototypeOf(this, DuplicateTemplatesError.prototype);
+  }
+}
+
+/**
+ * Finds the templates directory by walking up from the current working directory.
+ *
+ * Note: This function uses readdirSync which doesn't resolve symlinks. If a user
+ * creates a symlink from Templates -> templates on a case-sensitive filesystem,
+ * both names will be returned and trigger the duplicate error. This is intentional
+ * as it prevents potential confusion about which directory is actually being used.
+ */
 export function projectTemplatesDir(): string | null {
   let dir = process.cwd();
   const root = parse(dir).root; // Gets "C:\", "D:\", or "/" depending on platform
+  const startDir = dir; // Store for relative path in warning
 
   // Adding a safety counter to prevent infinite loops
   let depth = 0;
   const MAX_DEPTH = 50;
 
   while (true) {
-    const templatesPath = join(dir, "templates");
-    if (existsSync(templatesPath) && statSync(templatesPath).isDirectory()) {
-      return templatesPath;
+    try {
+      // Use withFileTypes to get proper Dirent objects
+      const entries = readdirSync(dir, { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .map((d) => d.name);
+
+      // Use Set for O(1) lookups
+      const entrySet = new Set(entries);
+      const lowerCaseExists = entrySet.has("templates");
+      const pascalCaseExists = entrySet.has("Templates");
+
+      if (lowerCaseExists && pascalCaseExists) {
+        throw new DuplicateTemplatesError();
+      }
+
+      if (lowerCaseExists) {
+        return join(dir, "templates");
+      }
+
+      if (pascalCaseExists) {
+        // Include relative path in warning for better context
+        const relativePath = relative(startDir, dir);
+        console.warn(
+          `⚠️  Using non-canonical 'Templates/' folder in ${relativePath} – consider renaming to 'templates/'.`
+        );
+        return join(dir, "Templates");
+      }
+    } catch (error) {
+      // If we can't read the directory, just continue to the next one
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+        throw error;
+      }
     }
 
     // Break if we've reached the root or max depth (as a safety measure)
-    if (dir === root || depth++ >= MAX_DEPTH) break;
+    if (dir === root || depth++ >= MAX_DEPTH) {
+      if (depth >= MAX_DEPTH) {
+        console.debug(`Reached max depth ${MAX_DEPTH} while searching for templates directory`);
+      }
+      break;
+    }
 
     // Use dirname instead of manual join with ".." for better cross-platform support
     dir = dirname(dir);
   }
+
   return null;
 }
 

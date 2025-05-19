@@ -8,11 +8,12 @@ const sources = [projectTemplatesDir(), userTemplatesDir(), packageTemplatesDir(
 );
 
 export function loadTemplate(name: string): string {
+  // Ensure the template name doesn't try to escape the directory
+  if (name.includes("..") || name.startsWith("/")) {
+    throw new Error(`Invalid template name: "${name}"`);
+  }
+
   for (const dir of sources) {
-    // Ensure the template name doesn't try to escape the directory
-    if (name.includes("..") || name.startsWith("/")) {
-      throw new Error(`Invalid template name: "${name}"`);
-    }
     const templatePath = join(dir, name);
     if (existsSync(templatePath)) {
       return readFileSync(templatePath, "utf8");

@@ -1,15 +1,17 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
-import { format } from "date-fns";
-import { runNew } from "./new";
+import { mockFsSafeDefaults } from "../lib/__tests__/helpers/testFsMock";
+mockFsSafeDefaults();
+
+import { describe, beforeEach, afterEach, test, expect, vi } from "vitest";
+import * as fs from "fs";
 import * as config from "../lib/config";
 import * as dateLogic from "../lib/dateLogic";
+import * as templateLoader from "../lib/templateLoader";
+import { DuplicateTemplatesError } from "../lib/pathHelpers";
 
-// Mock modules
-vi.mock("fs");
+// Mock other modules
 vi.mock("child_process");
 vi.mock("../lib/config");
+vi.mock("../lib/templateLoader");
 vi.mock("../lib/dateLogic", async () => {
   const actual = await vi.importActual("../lib/dateLogic");
   return {
@@ -34,40 +36,41 @@ const mockTemplates = {
 describe("new command", () => {
   let writtenFilePath = "";
   let writtenContent = "";
+  const originalProcessExit = process.exit;
+  let runNew: typeof import("./new.js").runNew;
 
-  beforeEach(() => {
-    // Clear all mocks
-    vi.clearAllMocks();
+  beforeEach(async () => {
+    vi.resetModules();
     writtenFilePath = "";
     writtenContent = "";
 
-    // Default mocks that work for all tests
-    vi.mocked(existsSync).mockImplementation((path) => {
-      // Templates always exist
-      if (String(path).includes("template")) return true;
-      // By default journal files don't exist
-      return false;
+    // Mock process.exit to prevent test termination
+    vi.spyOn(process, "exit").mockImplementation((code) => {
+      throw new Error(`Process exited with code ${code}`);
     });
 
-    vi.mocked(mkdirSync).mockImplementation(() => undefined);
-
-    vi.mocked(readFileSync).mockImplementation((path) => {
+    // Per-test fs overrides
+    const mfs = vi.mocked(fs);
+    mfs.readdirSync.mockImplementation((dir, opts) => {
+      if ((opts as any)?.withFileTypes) return [];
+      return [];
+    });
+    mfs.existsSync.mockImplementation((path) => {
+      if (String(path).includes("template")) return true;
+      return false;
+    });
+    mfs.mkdirSync.mockImplementation(() => undefined);
+    mfs.readFileSync.mockImplementation((path) => {
       const pathStr = String(path);
-
-      // Handle template requests
       if (pathStr.includes("daily_template")) return mockTemplates["daily_template.md"];
       if (pathStr.includes("weekly_template")) return mockTemplates["weekly_template.md"];
       if (pathStr.includes("monthly_template")) return mockTemplates["monthly_template.md"];
       if (pathStr.includes("quarterly_template")) return mockTemplates["quarterly_template.md"];
       if (pathStr.includes("yearly_template")) return mockTemplates["yearly_template.md"];
-
-      // Return the written content for journal files
       if (pathStr === writtenFilePath) return writtenContent;
-
       return "";
     });
-
-    vi.mocked(writeFileSync).mockImplementation((path, content) => {
+    mfs.writeFileSync.mockImplementation((path, content) => {
       writtenFilePath = String(path);
       writtenContent = String(content);
       return undefined;
@@ -75,16 +78,35 @@ describe("new command", () => {
 
     // Default config
     vi.mocked(config.getConfig).mockReturnValue(undefined);
-
     // Default date logic - regular weekday (not special)
     vi.mocked(dateLogic.isFriday).mockReturnValue(false);
     vi.mocked(dateLogic.isEndOfMonthFriday).mockReturnValue(false);
     vi.mocked(dateLogic.isEndOfQuarterFriday).mockReturnValue(false);
     vi.mocked(dateLogic.isVacationFriday).mockReturnValue(false);
+    // Mock templateLoader
+    vi.mocked(templateLoader.loadTemplate).mockImplementation((templateName) => {
+      switch (templateName) {
+        case "daily_template.md":
+          return mockTemplates["daily_template.md"];
+        case "weekly_template.md":
+          return mockTemplates["weekly_template.md"];
+        case "monthly_template.md":
+          return mockTemplates["monthly_template.md"];
+        case "quarterly_template.md":
+          return mockTemplates["quarterly_template.md"];
+        case "yearly_template.md":
+          return mockTemplates["yearly_template.md"];
+        default:
+          return mockTemplates["daily_template.md"];
+      }
+    });
+    // Lazy load the runNew function after all mocks are set up
+    ({ runNew } = await import("./new.js"));
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    process.exit = originalProcessExit;
   });
 
   test("Monday creates file with daily template", () => {
@@ -176,7 +198,7 @@ describe("new command", () => {
     const testDate = new Date(2025, 4, 5); // May 5, 2025
 
     // Mock that file already exists
-    vi.mocked(existsSync).mockImplementation((path) => {
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
       if (String(path).includes("template")) return true;
       // File exists this time
       return true;
@@ -203,5 +225,18 @@ describe("new command", () => {
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Overwrote journal entry"));
 
     consoleSpy.mockRestore();
+  });
+
+  test("Handles duplicate templates error", () => {
+    // Mock templateLoader to throw the duplicate templates error
+    vi.mocked(templateLoader.loadTemplate).mockImplementation(() => {
+      throw new DuplicateTemplatesError();
+    });
+
+    // Create a test date
+    const testDate = new Date(2025, 4, 5); // May 5, 2025
+
+    // Expect runNew to throw an error with our custom message
+    expect(() => runNew(testDate, false)).toThrow("Process exited with code 1");
   });
 });

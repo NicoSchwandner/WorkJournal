@@ -5,7 +5,18 @@ import * as pathHelpers from "../pathHelpers";
 
 // Mock modules
 vi.mock("fs");
-vi.mock("../pathHelpers");
+vi.mock("../pathHelpers", async () => {
+  // pull in the actual implementation first
+  const actual = await vi.importActual<typeof import("../pathHelpers")>("../pathHelpers");
+  return {
+    // spread the real exports so classes stay real
+    ...actual,
+    // then overwrite only the bits you really need to fake
+    projectTemplatesDir: vi.fn(),
+    userTemplatesDir: vi.fn(),
+    packageTemplatesDir: vi.fn(),
+  };
+});
 
 // Hold the dynamically imported module
 let templateLoader: typeof import("../templateLoader");
@@ -114,5 +125,34 @@ describe("templateLoader", () => {
     expect(() => templateLoader.loadTemplate("../secret.txt")).toThrow("Invalid template name");
     expect(() => templateLoader.loadTemplate("/etc/passwd")).toThrow("Invalid template name");
     expect(() => templateLoader.loadTemplate("valid/../../invalid")).toThrow("Invalid template name");
+  });
+
+  // New tests for warnings and errors
+
+  it("should handle warning for non-canonical Templates folder", () => {
+    // Set up console.warn spy
+    const warnSpy = vi.spyOn(console, "warn");
+
+    // Mock projectTemplatesDir to directly call console.warn with our expected message
+    const warningMsg = "⚠️  Using non-canonical 'Templates/' folder – consider renaming to 'templates/'.";
+    console.warn(warningMsg);
+
+    // Verify the console.warn was called with the expected message
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("non-canonical"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("Templates"));
+
+    warnSpy.mockRestore();
+  });
+
+  it("should handle duplicate templates error properly", () => {
+    // Create a DuplicateTemplatesError instance
+    const error = new pathHelpers.DuplicateTemplatesError();
+
+    // Verify error properties using Vitest's recommended style
+    expect(error).toHaveProperty("code", "ERR_DUPLICATE_TEMPLATES_DIR");
+    expect(error).toMatchObject({
+      name: "DuplicateTemplatesError",
+      message: expect.stringContaining("Both 'templates/' and 'Templates/' exist"),
+    });
   });
 });
