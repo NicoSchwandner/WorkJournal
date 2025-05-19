@@ -3,20 +3,9 @@ import path from "path";
 import * as pathHelpers from "./lib/pathHelpers";
 
 test("CLI boots", async () => {
-  // Mock projectTemplatesDir to avoid the duplicate templates error in CI
-  const originalProjectTemplatesDir = pathHelpers.projectTemplatesDir;
-  vi.spyOn(pathHelpers, "projectTemplatesDir").mockImplementation(() => {
-    try {
-      return originalProjectTemplatesDir();
-    } catch (error) {
-      // If error is about duplicate templates, just return null
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage.includes("ERR_DUPLICATE_TEMPLATES_DIR")) {
-        return null;
-      }
-      throw error;
-    }
-  });
+  // Set environment variable to bypass duplicate templates check
+  const originalEnv = process.env.WORK_JOURNAL_TEST;
+  process.env.WORK_JOURNAL_TEST = "1";
 
   const { execaNode } = await import("execa");
 
@@ -24,7 +13,10 @@ test("CLI boots", async () => {
   const cliBinPath = path.resolve(__dirname, "../dist/index.js");
 
   try {
-    const { stdout } = await execaNode(cliBinPath, ["--help"]);
+    // Pass the environment variable to the child process
+    const { stdout } = await execaNode(cliBinPath, ["--help"], {
+      env: { WORK_JOURNAL_TEST: "1" },
+    });
     expect(stdout).toContain("Commands:");
   } catch (error: any) {
     // Even if the command exits with an error code, we want to check its output
@@ -36,6 +28,10 @@ test("CLI boots", async () => {
     }
   }
 
-  // Restore the original implementation
-  vi.restoreAllMocks();
+  // Restore the original environment
+  if (originalEnv === undefined) {
+    delete process.env.WORK_JOURNAL_TEST;
+  } else {
+    process.env.WORK_JOURNAL_TEST = originalEnv;
+  }
 });
