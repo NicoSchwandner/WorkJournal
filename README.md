@@ -257,3 +257,11 @@ npx husky add .husky/pre-push "pnpm test && npx markdownlint-cli2 ."
 ---
 
 Made with 💚 in Göteborg
+
+### 🗂️ Journal Structure
+
+The `new` command generates entries in a `journal/YYYY/MM/YYYY-MM-DD.md` structure. It creates this in your current working directory. If Work-Journal finds a `./templates/` directory or a `work-journal.json` config file by searching upwards from your current directory, it will use that discovered project root as the base for creating the `journal/` folder.
+
+> **Note:** If you have existing journal entries in a `Journal/` directory (capital J), you'll need to rename it to `journal/` (lowercase) to maintain compatibility with newer versions.
+
+### �� Templating Logic

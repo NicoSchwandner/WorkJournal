@@ -116,8 +116,9 @@ describe("new command", () => {
     // Run the command
     const journalPath = runNew(monday, false);
 
-    // Verify file was written with correct content
+    // Verify file was written with correct content and path
     expect(writtenFilePath).toBe(journalPath);
+    expect(writtenFilePath).toContain("journal/2025/05/2025-05-05.md");
     expect(writtenContent).toContain("Daily Template");
     expect(writtenContent).toContain("Top 3 priorities Daily");
     expect(writtenContent).not.toContain("<!-- TEMPLATE:");
