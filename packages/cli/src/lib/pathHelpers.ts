@@ -3,6 +3,8 @@ import { join, dirname, parse, relative } from "path";
 import { existsSync, statSync, readdirSync } from "fs";
 import { fileURLToPath } from "url";
 
+let hasWarnedNonCanonical = false; // Module-level guard for warning
+
 export class DuplicateTemplatesError extends Error {
   code = "ERR_DUPLICATE_TEMPLATES_DIR";
   constructor() {
@@ -54,9 +56,12 @@ export function projectTemplatesDir(): string | null {
       if (pascalCaseExists) {
         // Include relative path in warning for better context
         const relativePath = relative(startDir, dir);
-        console.warn(
-          `⚠️  Using non-canonical 'Templates/' folder in ${relativePath} – consider renaming to 'templates/'.`
-        );
+        if (!hasWarnedNonCanonical) {
+          console.warn(
+            `⚠️  Using non-canonical 'Templates/' folder in ${relativePath} – consider renaming to 'templates/'.`
+          );
+          hasWarnedNonCanonical = true;
+        }
         return join(dir, "Templates");
       }
     } catch (error) {
