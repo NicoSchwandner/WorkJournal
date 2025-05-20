@@ -7,6 +7,7 @@ import * as config from "../lib/config";
 import * as dateLogic from "../lib/dateLogic";
 import * as templateLoader from "../lib/templateLoader";
 import { DuplicateTemplatesError } from "../lib/pathHelpers";
+import { join } from "path";
 
 // Mock other modules
 vi.mock("child_process");
@@ -118,7 +119,8 @@ describe("new command", () => {
 
     // Verify file was written with correct content and path
     expect(writtenFilePath).toBe(journalPath);
-    expect(writtenFilePath).toContain("journal/2025/05/2025-05-05.md");
+    const expectedPath = join("journal", "2025", "05", "2025-05-05.md");
+    expect(writtenFilePath).toContain(expectedPath);
     expect(writtenContent).toContain("Daily Template");
     expect(writtenContent).toContain("Top 3 priorities Daily");
     expect(writtenContent).not.toContain("<!-- TEMPLATE:");
