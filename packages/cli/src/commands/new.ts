@@ -57,7 +57,7 @@ export function runNew(targetDate: Date, shouldOpen: boolean, force: boolean = f
   const quarter = Math.floor(targetDate.getMonth() / 3) + 1;
 
   // Build the journal file path
-  const journalDir = join(process.cwd(), "Journal", year, month);
+  const journalDir = join(process.cwd(), "journal", year, month);
   const journalFilePath = join(journalDir, `${dateString}.md`);
 
   // Create directory structure if needed
