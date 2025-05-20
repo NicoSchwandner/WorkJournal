@@ -55,6 +55,6 @@ describe("resolveScope", () => {
 
     const scope = resolveScope(false);
 
-    expect(scope.configFile).toBe("/repo/DevJournal/work-journal.json");
+    expect(scope.configFile).toBe(path.join("/repo/DevJournal", "work-journal.json"));
   });
 });
