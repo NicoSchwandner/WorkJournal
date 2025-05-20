@@ -10,7 +10,8 @@
     "build": "tsup src/index.ts --format cjs --dts",
     "postbuild": "node copy-templates.js",
     "prepare": "pnpm run build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepack": "cp ../../README.md ./README.md"
   },
   "files": [
     "dist",
