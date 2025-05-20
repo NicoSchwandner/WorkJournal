@@ -48,4 +48,13 @@ describe("resolveScope", () => {
 
     process.cwd = originalCwd;
   });
+
+  it("should resolve project root correctly when Templates/ uses PascalCase", () => {
+    // simulate PascalCase projectTemplatesDir()
+    vi.mocked(projectTemplatesDir).mockReturnValue("/repo/DevJournal/Templates");
+
+    const scope = resolveScope(false);
+
+    expect(scope.configFile).toBe("/repo/DevJournal/work-journal.json");
+  });
 });
