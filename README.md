@@ -19,11 +19,6 @@ Keeping a lightweight text journal helps you:
 
 Traditional note-taking apps can feel heavy, manual, or lock you into proprietary formats. **Work-Journal** embraces plain Markdown, integrates seamlessly with Git, and automates the tedious parts of maintaining a consistent journal.
 
-<figure align="center">
-  <img src="docs/journal-example.svg" alt="Journal entry example" width="650"/>
-  <figcaption>Clean, simple Markdown journals with task tracking, right in your editor.</figcaption>
-</figure>
-
 ---
 
 ## 🚀 Quick Start
@@ -182,41 +177,6 @@ work-journal new # Uses 19 for the holiday cutoff calculation for this run
 | Environment Variable              | Maps to Config Key | Example Value |
 | --------------------------------- | ------------------ | ------------- |
 | `WORK_JOURNAL_HOLIDAY_CUTOFF_DAY` | `holidayCutoffDay` | `22`          |
-
----
-
-## 💻 VS Code Integration
-
-Streamline your workflow by creating new journal entries directly from VS Code.
-
-1.  Create or update `.vscode/tasks.json` in your project:
-
-    ```jsonc
-    {
-      "version": "2.0.0",
-      "tasks": [
-        {
-          "label": "Journal: New Entry",
-          "type": "shell",
-          "command": "npx work-journal new --open", // Or 'wj new --open' if globally installed & aliased
-          "problemMatcher": [],
-          "presentation": {
-            "reveal": "never" // Keeps the terminal panel hidden
-          }
-        }
-      ]
-    }
-    ```
-
-2.  Run the task:
-    - Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`).
-    - Type "Tasks: Run Task" and select "Journal: New Entry".
-    - **Pro Tip:** Assign a keyboard shortcut to the "Tasks: Run Build Task" command (often <kbd>⌘⇧B</kbd> or <kbd>Ctrl⇧B</kbd>) and set "Journal: New Entry" as your project's default build task.
-
-<figure align="center">
-  <img src="docs/vscode-task.svg" alt="VS Code task demo" width="650"/>
-  <figcaption>Hit your build key (e.g., ⇧⌘B) and start writing instantly.</figcaption>
-</figure>
 
 ---
 
