@@ -6,6 +6,8 @@
 
 <script src="https://asciinema.org/a/Ss97s2DA2ztjSPpVIxMNrLmgj.js" id="asciicast-Ss97s2DA2ztjSPpVIxMNrLmgj" async="true"></script>
 
+<a href="https://asciinema.org/a/Ss97s2DA2ztjSPpVIxMNrLmgj" target="_blank"><img src="https://asciinema.org/a/Ss97s2DA2ztjSPpVIxMNrLmgj.svg" /></a>
+
 ---
 
 ## 🌟 Why Work-Journal?
