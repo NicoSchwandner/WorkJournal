@@ -4,6 +4,8 @@
 
 [![CI](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml/badge.svg)](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/work-journal)](https://www.npmjs.com/package/work-journal) [![License](https://img.shields.io/github/license/NicoSchwandner/WorkJournal)](https://github.com/NicoSchwandner/WorkJournal/blob/main/LICENSE)
 
+<script src="https://asciinema.org/a/Ss97s2DA2ztjSPpVIxMNrLmgj.js" id="asciicast-Ss97s2DA2ztjSPpVIxMNrLmgj" async="true"></script>
+
 ---
 
 ## 🌟 Why Work-Journal?
