@@ -4,8 +4,7 @@
 
 [![CI](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml/badge.svg)](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/work-journal)](https://www.npmjs.com/package/work-journal) [![License](https://img.shields.io/github/license/NicoSchwandner/WorkJournal)](https://github.com/NicoSchwandner/WorkJournal/blob/main/LICENSE)
 
-[![Demo of work-journal as cli]([./assets/demo.gif](https://raw.githubusercontent.com/NicoSchwandner/WorkJournal/main/assets/demo.gif
-))](https://asciinema.org/a/Ss97s2DA2ztjSPpVIxMNrLmgj?autoplay=1&loop=1)
+[![Demo of work-journal as cli](https://raw.githubusercontent.com/NicoSchwandner/WorkJournal/main/assets/demo.gif)](https://asciinema.org/a/Ss97s2DA2ztjSPpVIxMNrLmgj?autoplay=1&loop=1)
 
 ---
 
