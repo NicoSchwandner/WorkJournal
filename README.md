@@ -107,7 +107,7 @@ The CLI searches for templates in the following order, using the first one it fi
 ```
 1. ./templates/                 (Project-specific custom templates)
      ↓
-2. ~/.config/work-journal/    (User-level global custom templates)
+2. ~/.config/work-journal/      (User-level global custom templates)
      ↓
 3. Packaged Default Templates   (Bundled with the CLI installation)
 ```
@@ -135,14 +135,14 @@ Customize Work-Journal's behavior through configuration files or environment var
 
 ### Configuration Files
 
-Settings are loaded and merged in this order of precedence (later sources override earlier ones):
+Settings are loaded and merged in this order of precedence (Highest precedence first):
 
-1.  **User Global Configuration:**
+1.  **Environment Variables:** (Highest precedence)
+2.  **Project Configuration:** A `work-journal.json` file in your project root (the directory where Work-Journal determines your `Journal/` or `templates/` folder resides).
+3.  **User Global Configuration:**
     - Linux: `~/.config/work-journal/config.json`
     - macOS: `~/Library/Preferences/work-journal/config.json`
     - Windows: `%APPDATA%\work-journal\config.json`
-2.  **Project Configuration:** A `work-journal.json` file in your project root (the directory where Work-Journal determines your `Journal/` or `templates/` folder resides).
-3.  **Environment Variables:** (Highest precedence)
 
 ### Managing Configuration via CLI
 
