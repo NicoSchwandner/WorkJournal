@@ -27,6 +27,8 @@ Traditional note-taking apps can feel heavy, manual, or lock you into proprietar
 
 Get your journal running in under a minute! **[Node.js 18+](https://nodejs.org/en/download) is required.**
 
+### Option 1: CLI Installation (Recommended for all users)
+
 1. **Create a new journal entry for today:**
 
    ```bash
@@ -61,6 +63,32 @@ Get your journal running in under a minute! **[Node.js 18+](https://nodejs.org/e
    ```
 
    This saves you the step of manually locating and opening the file. Set your preferred editor in the `EDITOR` environment variable, or Work-Journal will default to VS Code.
+
+### Option 2: VSCode Quickstart (Recommended for VSCode users)
+
+If you're using Visual Studio Code, we have a dedicated quickstart repository that provides a pre-configured setup with VSCode-specific features:
+
+1. **Clone the VSCode Quickstart Repository:**
+
+   ```bash
+   git clone https://github.com/NicoSchwandner/WorkJournal_VSCodeSetup.git
+   cd WorkJournal_VSCodeSetup
+   ```
+
+   > ⚠️ **Warning**: Make sure that you don't have the repo set up to be public. Most people don't want their journal to be public.
+
+2. **Open in VSCode:**
+
+   ```bash
+   code .
+   ```
+
+3. **Start Journaling:**
+   - Use the built-in VSCode Action Buttons for quick access to common tasks
+   - Generate entries with `npx work-journal new --open` - or use the action button
+   - Customize templates in the `templates/` folder
+
+For more details about the VSCode setup, including recommended extensions and configuration options, visit the [Work-Journal VSCode Quickstart](https://github.com/NicoSchwandner/WorkJournal_VSCodeSetup) repository.
 
 ---
 
@@ -212,6 +240,19 @@ Options:
 ```
 
 </details>
+
+---
+
+## 🧑‍💻 VSCode Integration
+
+Work-Journal is optimized for use with Visual Studio Code, offering several VSCode-specific features:
+
+- **Action Buttons**: Quick-access buttons for common tasks like creating entries and saving changes
+- **Recommended Extensions**: Pre-configured setup with Markdown All in One, Markdownlint, and Action Buttons
+- **Smart Templates**: Automatically selects appropriate reflection templates based on the current date
+- **Git Integration**: Seamless version control with built-in Git support
+
+For a complete VSCode setup with all these features pre-configured, check out our [VSCode Quickstart Repository](https://github.com/NicoSchwandner/WorkJournal_VSCodeSetup).
 
 ---
 
