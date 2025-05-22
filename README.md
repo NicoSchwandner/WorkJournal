@@ -2,7 +2,7 @@
 
 > Zero-friction Markdown journal for developers.
 
-[![CI](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml/badge.svg)](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/work-journal)](https://www.npmjs.com/package/work-journal) [![License](https://img.shields.io/github/license/NicoSchwandner/WorkJournal)](https://github.com/NicoSchwandner/WorkJournal/blob/main/LICENSE)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-WorkJournal-blue?logo=github)](https://github.com/NicoSchwandner/WorkJournal) [![Stars](https://img.shields.io/github/stars/NicoSchwandner/WorkJournal?style=social)](https://github.com/NicoSchwandner/WorkJournal) [![CI](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml/badge.svg)](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/work-journal)](https://www.npmjs.com/package/work-journal) [![License](https://img.shields.io/github/license/NicoSchwandner/WorkJournal)](https://github.com/NicoSchwandner/WorkJournal/blob/main/LICENSE)
 
 [![Demo of work-journal as cli](https://raw.githubusercontent.com/NicoSchwandner/WorkJournal/main/assets/demo.gif)](https://asciinema.org/a/Ss97s2DA2ztjSPpVIxMNrLmgj?autoplay=1&loop=1)
 
@@ -25,7 +25,7 @@ Traditional note-taking apps can feel heavy, manual, or lock you into proprietar
 
 ## 🚀 Quick Start
 
-Get your journal running in under a minute! **Node.js 18+ is required.**
+Get your journal running in under a minute! **[Node.js 18+](https://nodejs.org/en/download) is required.**
 
 1. **Create a new journal entry for today:**
 
