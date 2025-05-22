@@ -1,5 +1,18 @@
 # work-journal
 
+## 1.4.0
+
+### Minor Changes
+
+- 0ea8774: Change journal directory to lowercase for better filesystem compatibility
+
+### Patch Changes
+
+- b8c4204: Warn once for non-canonical Templates folder
+- e7df432: Fixes a bug where the config file could be written inside the Templates/ folder (instead of the project root) if the folder was named with a capital T ("Templates/").
+
+  The project root is now always resolved correctly regardless of the case of the templates folder, so config files are saved in the right place. Also adds a test for PascalCase folder names and ensures cross-platform path compatibility.
+
 ## 1.3.1
 
 ### Patch Changes
