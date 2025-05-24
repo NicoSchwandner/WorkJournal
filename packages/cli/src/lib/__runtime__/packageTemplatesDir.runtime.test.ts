@@ -11,7 +11,7 @@ describe("packageTemplatesDir [runtime]", () => {
     // 2. In the local development path (during testing)
     const isValidPath =
       dir.match(/node_modules[\\/](.*)work-journal[\\/]templates$/) !== null ||
-      dir.match(/WorkJournal[\\/]packages[\\/]cli[\\/]templates$/) !== null;
+      dir.match(/work-journal-cli[\\/]packages[\\/]cli[\\/]templates$/) !== null;
 
     expect(isValidPath).toBe(true);
     expect(existsSync(join(dir, "daily_template.md"))).toBe(true);
