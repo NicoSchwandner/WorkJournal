@@ -2,13 +2,13 @@
 
 > Zero-friction Markdown journal for developers.
 
-[![GitHub Repo](https://img.shields.io/badge/GitHub-WorkJournal-blue?logo=github)](https://github.com/NicoSchwandner/WorkJournal) [![Stars](https://img.shields.io/github/stars/NicoSchwandner/WorkJournal?style=social)](https://github.com/NicoSchwandner/WorkJournal) [![CI](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml/badge.svg)](https://github.com/NicoSchwandner/WorkJournal/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/work-journal)](https://www.npmjs.com/package/work-journal) [![License](https://img.shields.io/github/license/NicoSchwandner/WorkJournal)](https://github.com/NicoSchwandner/WorkJournal/blob/main/LICENSE)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-work-journal-cli-blue?logo=github)](https://github.com/NicoSchwandner/work-journal-cli) [![Stars](https://img.shields.io/github/stars/NicoSchwandner/work-journal-cli?style=social)](https://github.com/NicoSchwandner/work-journal-cli) [![CI](https://github.com/NicoSchwandner/work-journal-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/NicoSchwandner/work-journal-cli/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/work-journal)](https://www.npmjs.com/package/work-journal) [![License](https://img.shields.io/github/license/NicoSchwandner/work-journal-cli)](https://github.com/NicoSchwandner/work-journal-cli/blob/main/LICENSE)
 
 ```bash
 npx work-journal new --open
 ```
 
-[![Demo of work-journal as cli](https://raw.githubusercontent.com/NicoSchwandner/WorkJournal/main/assets/demo.gif)](https://asciinema.org/a/Ss97s2DA2ztjSPpVIxMNrLmgj?autoplay=1&loop=1)
+[![Demo of work-journal as cli](https://raw.githubusercontent.com/NicoSchwandner/work-journal-cli/main/assets/demo.gif)](https://asciinema.org/a/Ss97s2DA2ztjSPpVIxMNrLmgj?autoplay=1&loop=1)
 
 ---
 
@@ -75,8 +75,8 @@ If you're using Visual Studio Code, we have a dedicated quickstart repository th
 1. **Clone the VSCode Quickstart Repository:**
 
    ```bash
-   git clone https://github.com/NicoSchwandner/WorkJournal_VSCodeSetup.git
-   cd WorkJournal_VSCodeSetup
+   git clone https://github.com/NicoSchwandner/work-journal-vs-code-setup.git
+   cd work-journal-vs-code-setup
    ```
 
    > ⚠️ **Warning**: Make sure that you don't have the repo set up to be public. Most people don't want their journal to be public.
@@ -92,7 +92,7 @@ If you're using Visual Studio Code, we have a dedicated quickstart repository th
    - Generate entries with `npx work-journal new --open` - or use the action button
    - Customize templates in the `templates/` folder
 
-For more details about the VSCode setup, including recommended extensions and configuration options, visit the [Work-Journal VSCode Quickstart](https://github.com/NicoSchwandner/WorkJournal_VSCodeSetup) repository.
+For more details about the VSCode setup, including recommended extensions and configuration options, visit the [Work-Journal VSCode Quickstart](https://github.com/NicoSchwandner/work-journal-vs-code-setup) repository.
 
 ---
 
@@ -256,7 +256,7 @@ Work-Journal is optimized for use with Visual Studio Code, offering several VSCo
 - **Smart Templates**: Automatically selects appropriate reflection templates based on the current date
 - **Git Integration**: Seamless version control with built-in Git support
 
-For a complete VSCode setup with all these features pre-configured, check out our [VSCode Quickstart Repository](https://github.com/NicoSchwandner/WorkJournal_VSCodeSetup).
+For a complete VSCode setup with all these features pre-configured, check out our [VSCode Quickstart Repository](https://github.com/NicoSchwandner/work-journal-vs-code-setup).
 
 ---
 
@@ -315,7 +315,7 @@ This project uses [Changesets](https://github.com/changesets/changesets) to mana
 ### Repository Layout
 
 ```
-WorkJournal/
+work-journal-cli/
 ├── .changeset/            # Changeset files for versioning and changelogs
 ├── .github/workflows/     # GitHub Actions CI/CD workflows
 ├── docs/                  # Documentation assets (e.g., SVGs for README)
