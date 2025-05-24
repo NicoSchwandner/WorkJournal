@@ -2,7 +2,7 @@
 
 > Zero-friction Markdown journal for developers.
 
-[![GitHub Repo](https://img.shields.io/badge/GitHub-work-journal-cli-blue?logo=github)](https://github.com/NicoSchwandner/work-journal-cli) [![Stars](https://img.shields.io/github/stars/NicoSchwandner/work-journal-cli?style=social)](https://github.com/NicoSchwandner/work-journal-cli) [![CI](https://github.com/NicoSchwandner/work-journal-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/NicoSchwandner/work-journal-cli/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/work-journal)](https://www.npmjs.com/package/work-journal) [![License](https://img.shields.io/github/license/NicoSchwandner/work-journal-cli)](https://github.com/NicoSchwandner/work-journal-cli/blob/main/LICENSE)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-work--journal--cli-blue?logo=github)](https://github.com/NicoSchwandner/work-journal-cli) [![Stars](https://img.shields.io/github/stars/NicoSchwandner/work-journal-cli?style=social)](https://github.com/NicoSchwandner/work-journal-cli) [![CI](https://github.com/NicoSchwandner/work-journal-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/NicoSchwandner/work-journal-cli/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/work-journal)](https://www.npmjs.com/package/work-journal) [![License](https://img.shields.io/github/license/NicoSchwandner/work-journal-cli)](https://github.com/NicoSchwandner/work-journal-cli/blob/main/LICENSE)
 
 ```bash
 npx work-journal new --open
